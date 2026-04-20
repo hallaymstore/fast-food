@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Stol Bron | Kardeshler Doner</title>
-    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css?v=2.2.1" onerror="this.onerror=null;this.href='/foodwagon-v1.0.0/public/assets/css/theme.css?v=2.2.1';" />
-    <link rel="stylesheet" href="/assets/css/app.css?v=2.2.1" />
+    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css?v=2.3.0" onerror="this.onerror=null;this.href='/foodwagon-v1.0.0/public/assets/css/theme.css?v=2.3.0';" />
+    <link rel="stylesheet" href="/assets/css/app.css?v=2.3.0" />
   </head>
   <body class="kd-layout" data-page="tables">
     <nav class="navbar navbar-expand-lg fixed-top kd-navbar">
@@ -35,6 +35,7 @@
         <p class="kd-meta mb-2">
           Bo'sh stol yashil, band stol qizil rangda ko'rsatiladi. Stol tanlab bron yuborasiz, admin tasdiqlagach bron tasdiqlanadi.
         </p>
+        <p class="kd-meta mb-2"><strong>Manzil:</strong> <span id="offlineAddressTop">Toshkent shahri, Chilonzor tumani, Bunyodkor ko'chasi 17</span></p>
         <div class="d-flex flex-wrap gap-3 kd-compact">
           <span><span class="kd-status-dot green"></span> Bo'sh stol</span>
           <span><span class="kd-status-dot red"></span> Band stol</span>
@@ -97,6 +98,15 @@
           </section>
         </div>
       </div>
+
+      <section class="kd-panel p-3 p-md-4 mt-4">
+        <div class="kd-section-title mb-2">
+          <h3>Offline joylashuv xaritasi</h3>
+          <a id="offlineMapLink" class="kd-btn-ghost" href="https://maps.google.com/?q=41.2995,69.2401" target="_blank" rel="noreferrer">Xaritada ochish</a>
+        </div>
+        <p class="kd-meta mb-3" id="offlineAddress">Toshkent shahri, Chilonzor tumani, Bunyodkor ko'chasi 17</p>
+        <iframe id="offlineMapEmbed" class="kd-footer-map" src="https://www.google.com/maps?q=41.2995,69.2401&z=14&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </section>
     </main>
 
     <footer class="container py-3 kd-footer"><span>Kardeshler Doner Offline Reservation</span></footer>
@@ -104,10 +114,11 @@
     <script src="/foodwagon-v1.0.0/public/vendors/@popperjs/popper.min.js"></script>
     <script src="/foodwagon-v1.0.0/public/vendors/bootstrap/bootstrap.min.js"></script>
     <script src="/foodwagon-v1.0.0/public/vendors/fontawesome/all.min.js"></script>
-    <script src="/assets/js/app.js?v=2.2.1"></script>
-    <script src="/assets/js/tables.js?v=2.2.1"></script>
+    <script src="/assets/js/app.js?v=2.3.0"></script>
+    <script src="/assets/js/tables.js?v=2.3.0"></script>
   </body>
 </html>
+
 
 
 

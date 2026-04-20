@@ -20,8 +20,40 @@
     completed: "Yakunlandi",
   };
 
+  const DEFAULT_SITE_SETTINGS = {
+    brand: {
+      name: "Kardeshler Doner",
+      slogan: "Tez yetkazib berish, premium ta'm, zamonaviy servis",
+      supportPhone: "+998 90 777 55 44",
+      supportTelegram: "@kardeshler_support",
+      logoUrl: "/foodwagon-v1.0.0/public/assets/img/logo.png",
+      logoDarkUrl: "/foodwagon-v1.0.0/public/assets/img/logo.png",
+      faviconUrl: "/foodwagon-v1.0.0/public/assets/img/favicons/favicon-32x32.png",
+    },
+    offlineService: {
+      address: "Toshkent shahri, Chilonzor tumani",
+      mapEmbedUrl: "https://www.google.com/maps?q=41.2995,69.2401&z=14&output=embed",
+      mapLink: "https://maps.google.com/?q=41.2995,69.2401",
+      workingHours: "10:00 - 23:00",
+      reservationSlots: [],
+    },
+    footer: {
+      title: "Kardeshler Doner",
+      legalLine: "Barcha huquqlar himoyalangan.",
+      description: "Premium fast-food platforma",
+      address: "Toshkent shahri, Chilonzor tumani",
+      phone: "+998 90 777 55 44",
+      email: "admin@kardeshler.uz",
+      telegram: "@kardeshler_support",
+      mapEmbedUrl: "https://www.google.com/maps?q=41.2995,69.2401&z=14&output=embed",
+      mapLink: "https://maps.google.com/?q=41.2995,69.2401",
+    },
+    landing: {},
+  };
+
   const state = {
     currentUser: null,
+    siteSettings: null,
     pendingAuthResolvers: [],
   };
 
@@ -40,6 +72,37 @@
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
+  }
+
+  function normalizeSiteSettings(settings) {
+    const source = settings && typeof settings === "object" ? settings : {};
+    return {
+      ...DEFAULT_SITE_SETTINGS,
+      ...source,
+      brand: {
+        ...DEFAULT_SITE_SETTINGS.brand,
+        ...(source.brand || {}),
+      },
+      offlineService: {
+        ...DEFAULT_SITE_SETTINGS.offlineService,
+        ...(source.offlineService || {}),
+      },
+      footer: {
+        ...DEFAULT_SITE_SETTINGS.footer,
+        ...(source.footer || {}),
+      },
+      landing: {
+        ...DEFAULT_SITE_SETTINGS.landing,
+        ...(source.landing || {}),
+      },
+    };
+  }
+
+  function getSiteSettings() {
+    if (state.siteSettings) {
+      return state.siteSettings;
+    }
+    return normalizeSiteSettings({});
   }
 
   function getToken() {
@@ -61,6 +124,7 @@
   function setTheme(theme) {
     localStorage.setItem(STORAGE_KEYS.theme, theme);
     document.body.setAttribute("data-theme", theme);
+    syncBrandLogosWithTheme();
     const toggle = qs("#themeToggle i");
     if (toggle) {
       toggle.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
@@ -278,6 +342,155 @@
       appCss.href = `/assets/css/app.css?v=${Date.now()}`;
       head.appendChild(appCss);
     }
+  }
+
+  function applyFavicon(settings) {
+    const head = document.head;
+    if (!head) return;
+
+    const faviconUrl =
+      settings.brand?.faviconUrl || settings.brand?.logoUrl || DEFAULT_SITE_SETTINGS.brand.faviconUrl;
+
+    const iconLinks = [
+      { rel: "icon", type: "image/png", sizes: "32x32" },
+      { rel: "shortcut icon", type: "image/x-icon" },
+      { rel: "apple-touch-icon", type: "image/png", sizes: "180x180" },
+    ];
+
+    iconLinks.forEach((item) => {
+      const selector = `link[rel='${item.rel}']`;
+      const existing = qs(selector, head);
+      const link = existing || document.createElement("link");
+      link.setAttribute("rel", item.rel);
+      if (item.type) link.setAttribute("type", item.type);
+      if (item.sizes) link.setAttribute("sizes", item.sizes);
+      link.setAttribute("href", faviconUrl);
+      if (!existing) {
+        head.appendChild(link);
+      }
+    });
+  }
+
+  function syncBrandLogosWithTheme() {
+    const isDark = (document.body.getAttribute("data-theme") || "light") === "dark";
+    qsa(".kd-brand img[data-logo-light]").forEach((img) => {
+      const light = img.getAttribute("data-logo-light") || "";
+      const dark = img.getAttribute("data-logo-dark") || light;
+      img.setAttribute("src", isDark ? dark : light);
+    });
+  }
+
+  function applyNavBranding(settings) {
+    const brandName = settings.brand?.name || DEFAULT_SITE_SETTINGS.brand.name;
+    const logoLight = settings.brand?.logoUrl || "";
+    const logoDark = settings.brand?.logoDarkUrl || logoLight;
+
+    qsa(".kd-brand").forEach((node) => {
+      if (!node.dataset.kdSubtitle) {
+        node.dataset.kdSubtitle = (qs("small", node)?.textContent || "").trim();
+      }
+      const subtitle = node.dataset.kdSubtitle || "";
+      const logoMarkup = logoLight
+        ? `<img class="kd-brand-logo-img" src="${escapeHtml(
+            logoLight,
+          )}" data-logo-light="${escapeHtml(logoLight)}" data-logo-dark="${escapeHtml(
+            logoDark,
+          )}" alt="${escapeHtml(brandName)} logo" />`
+        : "";
+
+      node.innerHTML = `
+        <span class="kd-brand-head">
+          ${logoMarkup}
+          <span class="kd-brand-name">${escapeHtml(brandName)}</span>
+        </span>
+        ${subtitle ? `<small>${escapeHtml(subtitle)}</small>` : ""}
+      `;
+    });
+
+    syncBrandLogosWithTheme();
+
+    if (document.title.includes("Kardeshler Doner")) {
+      document.title = document.title.replaceAll("Kardeshler Doner", brandName);
+    }
+  }
+
+  function applyOfficialFooter(settings) {
+    const footerNode = qs("footer.kd-footer");
+    if (!footerNode) return;
+
+    const brand = settings.brand || {};
+    const footer = settings.footer || {};
+    const offline = settings.offlineService || {};
+    const title = footer.title || brand.name || DEFAULT_SITE_SETTINGS.footer.title;
+    const legalLine = footer.legalLine || DEFAULT_SITE_SETTINGS.footer.legalLine;
+    const description = footer.description || DEFAULT_SITE_SETTINGS.footer.description;
+    const address = footer.address || offline.address || DEFAULT_SITE_SETTINGS.footer.address;
+    const phone = footer.phone || brand.supportPhone || DEFAULT_SITE_SETTINGS.footer.phone;
+    const email = footer.email || DEFAULT_SITE_SETTINGS.footer.email;
+    const telegram = footer.telegram || brand.supportTelegram || DEFAULT_SITE_SETTINGS.footer.telegram;
+    const mapEmbedUrl =
+      footer.mapEmbedUrl || offline.mapEmbedUrl || DEFAULT_SITE_SETTINGS.footer.mapEmbedUrl;
+    const mapLink = footer.mapLink || offline.mapLink || DEFAULT_SITE_SETTINGS.footer.mapLink;
+    const year = new Date().getFullYear();
+
+    footerNode.innerHTML = `
+      <div class="kd-footer-grid">
+        <div class="kd-footer-col">
+          <h4 class="mb-2">${escapeHtml(title)}</h4>
+          <p class="kd-meta mb-2">${escapeHtml(description)}</p>
+          <p class="kd-meta mb-0">© ${year} ${escapeHtml(title)}. ${escapeHtml(legalLine)}</p>
+        </div>
+        <div class="kd-footer-col">
+          <div class="kd-footer-row"><i class="fas fa-location-dot"></i><span>${escapeHtml(
+            address,
+          )}</span></div>
+          <div class="kd-footer-row"><i class="fas fa-phone"></i><span>${escapeHtml(phone)}</span></div>
+          <div class="kd-footer-row"><i class="fas fa-envelope"></i><span>${escapeHtml(
+            email,
+          )}</span></div>
+          <div class="kd-footer-row"><i class="fab fa-telegram"></i><span>${escapeHtml(
+            telegram,
+          )}</span></div>
+          ${
+            mapLink
+              ? `<a class="kd-btn-ghost kd-compact mt-2" href="${escapeHtml(
+                  mapLink,
+                )}" target="_blank" rel="noreferrer">Xaritada ochish</a>`
+              : ""
+          }
+        </div>
+        <div class="kd-footer-col">
+          ${
+            mapEmbedUrl
+              ? `<iframe class="kd-footer-map" src="${escapeHtml(
+                  mapEmbedUrl,
+                )}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+              : '<div class="kd-empty">Xarita havolasi kiritilmagan.</div>'
+          }
+        </div>
+      </div>
+    `;
+  }
+
+  function applySiteSettingsToPage() {
+    const settings = getSiteSettings();
+    applyFavicon(settings);
+    applyNavBranding(settings);
+    applyOfficialFooter(settings);
+  }
+
+  async function loadSiteSettings() {
+    try {
+      const settings = await api("/api/settings", {}, { allowUnauthorized: true });
+      state.siteSettings = normalizeSiteSettings(settings);
+    } catch (error) {
+      state.siteSettings = normalizeSiteSettings({});
+    }
+
+    applySiteSettingsToPage();
+    document.dispatchEvent(
+      new CustomEvent("kd:settings-updated", { detail: getSiteSettings() }),
+    );
   }
 
   function getManualBackdrop() {
@@ -668,6 +881,7 @@
   function bootstrapCommon() {
     stabilizeStyles();
     initTheme();
+    applySiteSettingsToPage();
     setActiveNav();
     renderCartBadges();
     bindThemeToggle();
@@ -678,6 +892,7 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
     bootstrapCommon();
+    await loadSiteSettings();
     await loadCurrentUser();
 
     if (enforceRouteGuard()) {
@@ -715,6 +930,8 @@
     cartTotal,
     ensureAuth,
     getCurrentUser: () => state.currentUser,
+    getSiteSettings: () => getSiteSettings(),
+    reloadSiteSettings: loadSiteSettings,
     openAuthModal,
     logout,
     parseQuery,

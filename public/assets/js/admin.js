@@ -10,6 +10,7 @@
     orders: [],
     tables: [],
     tableReservations: [],
+    settings: null,
   };
 
   const STATUS_OPTIONS = [
@@ -355,6 +356,198 @@
       .join("");
   }
 
+  function setInputValue(id, value) {
+    const node = qs(`#${id}`);
+    if (!node) return;
+    node.value = value || "";
+  }
+
+  function setImagePreview(id, url) {
+    const node = qs(`#${id}`);
+    if (!node) return;
+    if (url) {
+      node.setAttribute("src", url);
+      node.classList.remove("d-none");
+    } else {
+      node.setAttribute("src", "");
+      node.classList.add("d-none");
+    }
+  }
+
+  function renderSettings() {
+    if (!state.settings) return;
+
+    const brand = state.settings.brand || {};
+    const landing = state.settings.landing || {};
+    const footer = state.settings.footer || {};
+    const offline = state.settings.offlineService || {};
+    const adminCard = state.settings.adminCard || {};
+
+    setInputValue("settingsBrandName", brand.name);
+    setInputValue("settingsBrandSlogan", brand.slogan);
+    setInputValue("settingsSupportPhone", brand.supportPhone);
+    setInputValue("settingsSupportTelegram", brand.supportTelegram);
+
+    setInputValue("settingsHeroBadge", landing.badge);
+    setInputValue("settingsHeroTitle", landing.heroTitle);
+    setInputValue("settingsHeroSubtitle", landing.heroSubtitle);
+    setInputValue("settingsQuickPlaceholder", landing.quickOrderPlaceholder);
+    setInputValue("settingsCtaMenu", landing.ctaMenuText);
+    setInputValue("settingsCtaOrder", landing.ctaOrderText);
+    setInputValue("settingsCtaTable", landing.ctaTableText);
+    setInputValue("settingsFeature1Title", landing.feature1Title);
+    setInputValue("settingsFeature1Description", landing.feature1Description);
+    setInputValue("settingsFeature2Title", landing.feature2Title);
+    setInputValue("settingsFeature2Description", landing.feature2Description);
+    setInputValue("settingsFeature3Title", landing.feature3Title);
+    setInputValue("settingsFeature3Description", landing.feature3Description);
+    setInputValue("settingsFeature4Title", landing.feature4Title);
+    setInputValue("settingsFeature4Description", landing.feature4Description);
+    setInputValue("settingsWhyTitle", landing.whyChooseTitle);
+    setInputValue("settingsFeaturedTitle", landing.featuredTitle);
+    setInputValue("settingsProcessTitle", landing.processTitle);
+    setInputValue("settingsStep1Title", landing.processStep1Title);
+    setInputValue("settingsStep1Description", landing.processStep1Description);
+    setInputValue("settingsStep2Title", landing.processStep2Title);
+    setInputValue("settingsStep2Description", landing.processStep2Description);
+    setInputValue("settingsStep3Title", landing.processStep3Title);
+    setInputValue("settingsStep3Description", landing.processStep3Description);
+    setInputValue("settingsPaymentTitle", landing.paymentBannerTitle);
+    setInputValue("settingsPaymentText", landing.paymentBannerText);
+    setInputValue("settingsPaymentButton", landing.paymentBannerButtonText);
+    setInputValue("settingsOfflineTitle", landing.offlineTitle);
+    setInputValue("settingsOfflineDescription", landing.offlineDescription);
+    setInputValue("settingsOfflineButton", landing.offlineButtonText);
+    setInputValue("settingsTestimonialsTitle", landing.testimonialsTitle);
+    setInputValue("settingsTestimonial1Quote", landing.testimonial1Quote);
+    setInputValue("settingsTestimonial1Author", landing.testimonial1Author);
+    setInputValue("settingsTestimonial2Quote", landing.testimonial2Quote);
+    setInputValue("settingsTestimonial2Author", landing.testimonial2Author);
+    setInputValue("settingsTestimonial3Quote", landing.testimonial3Quote);
+    setInputValue("settingsTestimonial3Author", landing.testimonial3Author);
+    setInputValue("settingsTestimonial4Quote", landing.testimonial4Quote);
+    setInputValue("settingsTestimonial4Author", landing.testimonial4Author);
+
+    setInputValue("settingsFooterTitle", footer.title);
+    setInputValue("settingsFooterLegal", footer.legalLine);
+    setInputValue("settingsFooterDescription", footer.description);
+    setInputValue("settingsAddress", footer.address || offline.address);
+    setInputValue("settingsFooterPhone", footer.phone || brand.supportPhone);
+    setInputValue("settingsFooterEmail", footer.email);
+    setInputValue("settingsFooterTelegram", footer.telegram || brand.supportTelegram);
+    setInputValue("settingsMapEmbed", footer.mapEmbedUrl || offline.mapEmbedUrl);
+    setInputValue("settingsMapLink", footer.mapLink || offline.mapLink);
+    setInputValue("settingsWorkingHours", offline.workingHours);
+    setInputValue(
+      "settingsReservationSlots",
+      Array.isArray(offline.reservationSlots)
+        ? offline.reservationSlots.join(", ")
+        : "",
+    );
+
+    setInputValue("settingsCardNumber", adminCard.cardNumber);
+    setInputValue("settingsCardHolder", adminCard.cardHolder);
+    setInputValue("settingsBankName", adminCard.bankName);
+    setInputValue("settingsCardNote", adminCard.note);
+
+    setImagePreview("brandLogoPreview", brand.logoUrl || "");
+    setImagePreview("brandLogoDarkPreview", brand.logoDarkUrl || "");
+    setImagePreview("brandFaviconPreview", brand.faviconUrl || "");
+  }
+
+  async function loadSettings() {
+    state.settings = await api("/api/admin/settings");
+    renderSettings();
+  }
+
+  async function uploadBrandAsset(assetType, file) {
+    if (!file) return;
+    const formData = new FormData();
+    formData.set("assetType", assetType);
+    formData.set("asset", file);
+    await api("/api/admin/settings/asset", {
+      method: "POST",
+      body: formData,
+    });
+  }
+
+  function collectSettingsPayload() {
+    return {
+      brand: {
+        name: qs("#settingsBrandName")?.value || "",
+        slogan: qs("#settingsBrandSlogan")?.value || "",
+        supportPhone: qs("#settingsSupportPhone")?.value || "",
+        supportTelegram: qs("#settingsSupportTelegram")?.value || "",
+      },
+      landing: {
+        badge: qs("#settingsHeroBadge")?.value || "",
+        heroTitle: qs("#settingsHeroTitle")?.value || "",
+        heroSubtitle: qs("#settingsHeroSubtitle")?.value || "",
+        quickOrderPlaceholder: qs("#settingsQuickPlaceholder")?.value || "",
+        ctaMenuText: qs("#settingsCtaMenu")?.value || "",
+        ctaOrderText: qs("#settingsCtaOrder")?.value || "",
+        ctaTableText: qs("#settingsCtaTable")?.value || "",
+        feature1Title: qs("#settingsFeature1Title")?.value || "",
+        feature1Description: qs("#settingsFeature1Description")?.value || "",
+        feature2Title: qs("#settingsFeature2Title")?.value || "",
+        feature2Description: qs("#settingsFeature2Description")?.value || "",
+        feature3Title: qs("#settingsFeature3Title")?.value || "",
+        feature3Description: qs("#settingsFeature3Description")?.value || "",
+        feature4Title: qs("#settingsFeature4Title")?.value || "",
+        feature4Description: qs("#settingsFeature4Description")?.value || "",
+        whyChooseTitle: qs("#settingsWhyTitle")?.value || "",
+        featuredTitle: qs("#settingsFeaturedTitle")?.value || "",
+        processTitle: qs("#settingsProcessTitle")?.value || "",
+        processStep1Title: qs("#settingsStep1Title")?.value || "",
+        processStep1Description: qs("#settingsStep1Description")?.value || "",
+        processStep2Title: qs("#settingsStep2Title")?.value || "",
+        processStep2Description: qs("#settingsStep2Description")?.value || "",
+        processStep3Title: qs("#settingsStep3Title")?.value || "",
+        processStep3Description: qs("#settingsStep3Description")?.value || "",
+        paymentBannerTitle: qs("#settingsPaymentTitle")?.value || "",
+        paymentBannerText: qs("#settingsPaymentText")?.value || "",
+        paymentBannerButtonText: qs("#settingsPaymentButton")?.value || "",
+        offlineTitle: qs("#settingsOfflineTitle")?.value || "",
+        offlineDescription: qs("#settingsOfflineDescription")?.value || "",
+        offlineButtonText: qs("#settingsOfflineButton")?.value || "",
+        testimonialsTitle: qs("#settingsTestimonialsTitle")?.value || "",
+        testimonial1Quote: qs("#settingsTestimonial1Quote")?.value || "",
+        testimonial1Author: qs("#settingsTestimonial1Author")?.value || "",
+        testimonial2Quote: qs("#settingsTestimonial2Quote")?.value || "",
+        testimonial2Author: qs("#settingsTestimonial2Author")?.value || "",
+        testimonial3Quote: qs("#settingsTestimonial3Quote")?.value || "",
+        testimonial3Author: qs("#settingsTestimonial3Author")?.value || "",
+        testimonial4Quote: qs("#settingsTestimonial4Quote")?.value || "",
+        testimonial4Author: qs("#settingsTestimonial4Author")?.value || "",
+      },
+      footer: {
+        title: qs("#settingsFooterTitle")?.value || "",
+        legalLine: qs("#settingsFooterLegal")?.value || "",
+        description: qs("#settingsFooterDescription")?.value || "",
+        address: qs("#settingsAddress")?.value || "",
+        phone: qs("#settingsFooterPhone")?.value || "",
+        email: qs("#settingsFooterEmail")?.value || "",
+        telegram: qs("#settingsFooterTelegram")?.value || "",
+        mapEmbedUrl: qs("#settingsMapEmbed")?.value || "",
+        mapLink: qs("#settingsMapLink")?.value || "",
+      },
+      offlineService: {
+        enabled: true,
+        workingHours: qs("#settingsWorkingHours")?.value || "",
+        address: qs("#settingsAddress")?.value || "",
+        mapEmbedUrl: qs("#settingsMapEmbed")?.value || "",
+        mapLink: qs("#settingsMapLink")?.value || "",
+        reservationSlots: qs("#settingsReservationSlots")?.value || "",
+      },
+      adminCard: {
+        cardNumber: qs("#settingsCardNumber")?.value || "",
+        cardHolder: qs("#settingsCardHolder")?.value || "",
+        bankName: qs("#settingsBankName")?.value || "",
+        note: qs("#settingsCardNote")?.value || "",
+      },
+    };
+  }
+
   async function loadOverview() {
     const data = await api("/api/admin/overview");
     setOverview(data);
@@ -404,6 +597,7 @@
         loadOrders(),
         loadTables(),
         loadTableReservations(),
+        loadSettings(),
       ]);
     } catch (error) {
       toast(error.message, "error");
@@ -777,6 +971,36 @@
       await loadOverview();
     } catch (error) {
       toast(error.message, "error");
+    }
+  });
+
+  qs("#siteSettingsForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const saveButton = qs("#siteSettingsSaveButton");
+    if (saveButton) saveButton.disabled = true;
+
+    try {
+      const payload = collectSettingsPayload();
+      await api("/api/admin/settings", {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      });
+
+      await uploadBrandAsset("logo", qs("#brandLogoFile")?.files?.[0]);
+      await uploadBrandAsset("logoDark", qs("#brandLogoDarkFile")?.files?.[0]);
+      await uploadBrandAsset("favicon", qs("#brandFaviconFile")?.files?.[0]);
+
+      if (qs("#brandLogoFile")) qs("#brandLogoFile").value = "";
+      if (qs("#brandLogoDarkFile")) qs("#brandLogoDarkFile").value = "";
+      if (qs("#brandFaviconFile")) qs("#brandFaviconFile").value = "";
+
+      await loadSettings();
+      await window.KDApp.reloadSiteSettings?.();
+      toast("Sayt sozlamalari saqlandi.", "success");
+    } catch (error) {
+      toast(error.message, "error");
+    } finally {
+      if (saveButton) saveButton.disabled = false;
     }
   });
 

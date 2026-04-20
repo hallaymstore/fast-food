@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Panel | Kardeshler Doner</title>
-    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css?v=2.2.1" onerror="this.onerror=null;this.href='/foodwagon-v1.0.0/public/assets/css/theme.css?v=2.2.1';" />
-    <link rel="stylesheet" href="/assets/css/app.css?v=2.2.1" />
+    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css?v=2.3.0" onerror="this.onerror=null;this.href='/foodwagon-v1.0.0/public/assets/css/theme.css?v=2.3.0';" />
+    <link rel="stylesheet" href="/assets/css/app.css?v=2.3.0" />
   </head>
   <body class="kd-layout" data-page="admin" data-require-auth="true" data-admin-only="true">
     <nav class="navbar navbar-expand-lg fixed-top kd-navbar">
@@ -50,6 +50,7 @@
           <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabMenu" type="button">Menu</button></li>
           <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabOrders" type="button">Orders & Delivery</button></li>
           <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabTables" type="button">Stollar</button></li>
+          <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabSettings" type="button">Sayt sozlamalari</button></li>
         </ul>
 
         <div class="tab-content">
@@ -239,6 +240,119 @@
               </div>
             </div>
           </div>
+
+          <div class="tab-pane fade" id="tabSettings">
+            <form id="siteSettingsForm" class="d-grid gap-3">
+              <div class="row g-3">
+                <div class="col-lg-4">
+                  <section class="kd-panel p-3 d-grid gap-2 h-100">
+                    <h5 class="mb-1">Brend va aloqa</h5>
+                    <label>Brend nomi <input id="settingsBrandName" class="form-control" required /></label>
+                    <label>Shior <input id="settingsBrandSlogan" class="form-control" /></label>
+                    <label>Qo'llab-quvvatlash telefoni <input id="settingsSupportPhone" class="form-control" /></label>
+                    <label>Telegram <input id="settingsSupportTelegram" class="form-control" /></label>
+
+                    <label>Logo (light) <input id="brandLogoFile" type="file" class="form-control" accept="image/*" /></label>
+                    <img id="brandLogoPreview" class="kd-brand-preview d-none" alt="Logo preview" />
+
+                    <label>Logo (dark) <input id="brandLogoDarkFile" type="file" class="form-control" accept="image/*" /></label>
+                    <img id="brandLogoDarkPreview" class="kd-brand-preview d-none" alt="Dark logo preview" />
+
+                    <label>Favicon <input id="brandFaviconFile" type="file" class="form-control" accept="image/*" /></label>
+                    <img id="brandFaviconPreview" class="kd-brand-preview kd-favicon-preview d-none" alt="Favicon preview" />
+                  </section>
+                </div>
+
+                <div class="col-lg-8">
+                  <section class="kd-panel p-3 d-grid gap-2">
+                    <h5 class="mb-1">Landing kontenti</h5>
+                    <div class="row g-2">
+                      <div class="col-md-6"><label>Hero badge <input id="settingsHeroBadge" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Hero sarlavha <input id="settingsHeroTitle" class="form-control" /></label></div>
+                      <div class="col-12"><label>Hero matni <textarea id="settingsHeroSubtitle" rows="2" class="form-control"></textarea></label></div>
+                      <div class="col-md-6"><label>Quick buyurtma placeholder <input id="settingsQuickPlaceholder" class="form-control" /></label></div>
+                      <div class="col-md-2"><label>CTA Menu <input id="settingsCtaMenu" class="form-control" /></label></div>
+                      <div class="col-md-2"><label>CTA Buyurtma <input id="settingsCtaOrder" class="form-control" /></label></div>
+                      <div class="col-md-2"><label>CTA Stol <input id="settingsCtaTable" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Feature 1 sarlavha <input id="settingsFeature1Title" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Feature 1 matn <input id="settingsFeature1Description" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Feature 2 sarlavha <input id="settingsFeature2Title" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Feature 2 matn <input id="settingsFeature2Description" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Feature 3 sarlavha <input id="settingsFeature3Title" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Feature 3 matn <input id="settingsFeature3Description" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Feature 4 sarlavha <input id="settingsFeature4Title" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Feature 4 matn <input id="settingsFeature4Description" class="form-control" /></label></div>
+                      <div class="col-md-4"><label>"Nega biz?" sarlavha <input id="settingsWhyTitle" class="form-control" /></label></div>
+                      <div class="col-md-4"><label>Featured sarlavha <input id="settingsFeaturedTitle" class="form-control" /></label></div>
+                      <div class="col-md-4"><label>Jarayon sarlavha <input id="settingsProcessTitle" class="form-control" /></label></div>
+                    </div>
+
+                    <div class="row g-2">
+                      <div class="col-md-6"><label>Qadam 1 sarlavha <input id="settingsStep1Title" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Qadam 1 matn <input id="settingsStep1Description" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Qadam 2 sarlavha <input id="settingsStep2Title" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Qadam 2 matn <input id="settingsStep2Description" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Qadam 3 sarlavha <input id="settingsStep3Title" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Qadam 3 matn <input id="settingsStep3Description" class="form-control" /></label></div>
+                    </div>
+
+                    <div class="row g-2">
+                      <div class="col-md-6"><label>To'lov banner sarlavha <input id="settingsPaymentTitle" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>To'lov banner tugma <input id="settingsPaymentButton" class="form-control" /></label></div>
+                      <div class="col-12"><label>To'lov banner matni <textarea id="settingsPaymentText" rows="2" class="form-control"></textarea></label></div>
+                      <div class="col-md-6"><label>Offline blok sarlavha <input id="settingsOfflineTitle" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Offline blok tugma <input id="settingsOfflineButton" class="form-control" /></label></div>
+                      <div class="col-12"><label>Offline blok matni <textarea id="settingsOfflineDescription" rows="2" class="form-control"></textarea></label></div>
+                      <div class="col-12"><label>Testimonials sarlavha <input id="settingsTestimonialsTitle" class="form-control" /></label></div>
+                      <div class="col-md-9"><label>Fikr 1 <input id="settingsTestimonial1Quote" class="form-control" /></label></div>
+                      <div class="col-md-3"><label>Muallif 1 <input id="settingsTestimonial1Author" class="form-control" /></label></div>
+                      <div class="col-md-9"><label>Fikr 2 <input id="settingsTestimonial2Quote" class="form-control" /></label></div>
+                      <div class="col-md-3"><label>Muallif 2 <input id="settingsTestimonial2Author" class="form-control" /></label></div>
+                      <div class="col-md-9"><label>Fikr 3 <input id="settingsTestimonial3Quote" class="form-control" /></label></div>
+                      <div class="col-md-3"><label>Muallif 3 <input id="settingsTestimonial3Author" class="form-control" /></label></div>
+                      <div class="col-md-9"><label>Fikr 4 <input id="settingsTestimonial4Quote" class="form-control" /></label></div>
+                      <div class="col-md-3"><label>Muallif 4 <input id="settingsTestimonial4Author" class="form-control" /></label></div>
+                    </div>
+                  </section>
+                </div>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-lg-8">
+                  <section class="kd-panel p-3 d-grid gap-2">
+                    <h5 class="mb-1">Rasmiy footer va xarita</h5>
+                    <div class="row g-2">
+                      <div class="col-md-4"><label>Footer nomi <input id="settingsFooterTitle" class="form-control" /></label></div>
+                      <div class="col-md-8"><label>Legal qator <input id="settingsFooterLegal" class="form-control" /></label></div>
+                      <div class="col-12"><label>Footer tavsifi <textarea id="settingsFooterDescription" rows="2" class="form-control"></textarea></label></div>
+                      <div class="col-12"><label>Manzil <textarea id="settingsAddress" rows="2" class="form-control"></textarea></label></div>
+                      <div class="col-md-4"><label>Footer telefon <input id="settingsFooterPhone" class="form-control" /></label></div>
+                      <div class="col-md-4"><label>Footer email <input id="settingsFooterEmail" class="form-control" /></label></div>
+                      <div class="col-md-4"><label>Footer telegram <input id="settingsFooterTelegram" class="form-control" /></label></div>
+                      <div class="col-md-6"><label>Xarita embed URL <input id="settingsMapEmbed" class="form-control" placeholder="https://...output=embed" /></label></div>
+                      <div class="col-md-6"><label>Xaritaga link <input id="settingsMapLink" class="form-control" placeholder="https://maps..." /></label></div>
+                      <div class="col-md-4"><label>Ish vaqti <input id="settingsWorkingHours" class="form-control" placeholder="10:00 - 23:00" /></label></div>
+                      <div class="col-md-8"><label>Bron slotlar (vergul bilan) <input id="settingsReservationSlots" class="form-control" placeholder="10:00, 11:00, 12:00" /></label></div>
+                    </div>
+                  </section>
+                </div>
+
+                <div class="col-lg-4">
+                  <section class="kd-panel p-3 d-grid gap-2 h-100">
+                    <h5 class="mb-1">Admin karta ma'lumoti</h5>
+                    <label>Karta raqami <input id="settingsCardNumber" class="form-control" /></label>
+                    <label>Karta egasi <input id="settingsCardHolder" class="form-control" /></label>
+                    <label>Bank nomi <input id="settingsBankName" class="form-control" /></label>
+                    <label>Karta izohi <textarea id="settingsCardNote" rows="4" class="form-control"></textarea></label>
+                  </section>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end">
+                <button id="siteSettingsSaveButton" type="submit" class="kd-btn-primary">Sayt sozlamalarini saqlash</button>
+              </div>
+            </form>
+          </div>
         </div>
       </section>
     </main>
@@ -248,9 +362,10 @@
     <script src="/foodwagon-v1.0.0/public/vendors/@popperjs/popper.min.js"></script>
     <script src="/foodwagon-v1.0.0/public/vendors/bootstrap/bootstrap.min.js"></script>
     <script src="/foodwagon-v1.0.0/public/vendors/fontawesome/all.min.js"></script>
-    <script src="/assets/js/app.js?v=2.2.1"></script>
-    <script src="/assets/js/admin.js?v=2.2.1"></script>
+    <script src="/assets/js/app.js?v=2.3.0"></script>
+    <script src="/assets/js/admin.js?v=2.3.0"></script>
   </body>
 </html>
+
 
 

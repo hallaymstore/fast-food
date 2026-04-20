@@ -19,6 +19,11 @@
   const reservationForm = qs("#tableReservationForm");
   const selectedTableInfo = qs("#selectedTableInfo");
   const historyBody = qs("#tableReservationHistory");
+  const offlineWorkingHoursNode = qs("#offlineWorkingHours");
+  const offlineAddressNode = qs("#offlineAddress");
+  const offlineAddressTopNode = qs("#offlineAddressTop");
+  const offlineMapEmbedNode = qs("#offlineMapEmbed");
+  const offlineMapLinkNode = qs("#offlineMapLink");
 
   let currentTables = [];
   let selectedTableId = "";
@@ -113,14 +118,38 @@
     }
   }
 
+  function applyOfflineSettings(settings) {
+    const offline = settings?.offlineService || {};
+    renderSlots(offline.reservationSlots || []);
+    if (offlineWorkingHoursNode) {
+      offlineWorkingHoursNode.textContent = offline.workingHours || "10:00 - 23:00";
+    }
+    if (offlineAddressNode) {
+      offlineAddressNode.textContent = offline.address || "Manzil kiritilmagan.";
+    }
+    if (offlineAddressTopNode) {
+      offlineAddressTopNode.textContent = offline.address || "Manzil kiritilmagan.";
+    }
+    if (offlineMapEmbedNode && offline.mapEmbedUrl) {
+      offlineMapEmbedNode.setAttribute("src", offline.mapEmbedUrl);
+    }
+    if (offlineMapLinkNode) {
+      const linkValue = offline.mapLink || offline.mapEmbedUrl || "";
+      if (linkValue) {
+        offlineMapLinkNode.setAttribute("href", linkValue);
+      }
+    }
+  }
+
   async function loadSettings() {
     try {
-      const settings = await api("/api/settings");
-      renderSlots(settings.offlineService?.reservationSlots || []);
-      const workingHours = qs("#offlineWorkingHours");
-      if (workingHours) {
-        workingHours.textContent = settings.offlineService?.workingHours || "10:00 - 23:00";
+      const fromState = window.KDApp.getSiteSettings?.();
+      if (fromState) {
+        applyOfflineSettings(fromState);
+        return;
       }
+      const settings = await api("/api/settings");
+      applyOfflineSettings(settings);
     } catch (error) {
       console.error(error);
     }
@@ -217,6 +246,10 @@
 
   document.addEventListener("kd:user-updated", () => {
     loadMyReservations();
+  });
+
+  document.addEventListener("kd:settings-updated", (event) => {
+    applyOfflineSettings(event.detail || {});
   });
 
   if (dateInput) {

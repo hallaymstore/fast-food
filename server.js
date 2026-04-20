@@ -74,6 +74,123 @@ const adminCardInfo = {
     "To'lovdan keyin screenshotni yuklang. Admin tasdiqlagach buyurtma tayyorlanadi.",
 };
 
+const SETTINGS_DOC_KEY = "main";
+const DEFAULT_LOGO_URL = "/foodwagon-v1.0.0/public/assets/img/logo.png";
+const DEFAULT_FAVICON_URL =
+  "/foodwagon-v1.0.0/public/assets/img/favicons/favicon-32x32.png";
+
+function getDefaultSiteSettings() {
+  return {
+    brand: {
+      name: BRAND_NAME,
+      slogan: "Tez yetkazib berish, premium ta'm, zamonaviy servis",
+      supportPhone: process.env.SUPPORT_PHONE || "+998 90 777 55 44",
+      supportTelegram: process.env.SUPPORT_TELEGRAM || "@kardeshler_support",
+      logoUrl: DEFAULT_LOGO_URL,
+      logoDarkUrl: DEFAULT_LOGO_URL,
+      faviconUrl: DEFAULT_FAVICON_URL,
+      logoPublicId: "",
+      logoDarkPublicId: "",
+      faviconPublicId: "",
+    },
+    adminCard: { ...adminCardInfo },
+    deliveryServices: [
+      { key: "internal", name: "Kardeshler Express", eta: "20-35 daqiqa" },
+      { key: "partner", name: "Hamkor kuryer", eta: "30-45 daqiqa" },
+    ],
+    offlineService: {
+      enabled: true,
+      workingHours: "10:00 - 23:00",
+      address: "Toshkent shahri, Chilonzor tumani, Bunyodkor ko'chasi 17",
+      mapEmbedUrl:
+        "https://www.google.com/maps?q=41.2995,69.2401&z=14&output=embed",
+      mapLink: "https://maps.google.com/?q=41.2995,69.2401",
+      reservationSlots: [
+        "10:00",
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+      ],
+    },
+    landing: {
+      badge: "foodwagon-v1.0.0 premium integrated",
+      heroTitle: "Kardeshler Doner",
+      heroSubtitle: "Tez yetkazib berish, premium ta'm, zamonaviy servis",
+      quickOrderPlaceholder: "Tez buyurtma uchun manzil kiriting",
+      ctaMenuText: "Menu ko'rish",
+      ctaOrderText: "Hozir buyurtma",
+      ctaTableText: "Stol bron qilish",
+      feature1Title: "Tezkor buyurtma",
+      feature1Description:
+        "Menu tanlang, 1 klikda savatga qo'shing, to'lovni screenshot bilan tasdiqlang.",
+      feature2Title: "To'liq nazorat",
+      feature2Description:
+        "Admin panelda users, menu, orders, delivery va offline stollar nazorati.",
+      feature3Title: "Cloudinary media",
+      feature3Description: "To'lov screenshotlari va rasmlar xavfsiz saqlanadi.",
+      feature4Title: "Day/Night mode",
+      feature4Description:
+        "Kunduzgi va tungi premium temalar barcha qurilmalarda mos.",
+      whyChooseTitle: "Nega bizni tanlashadi?",
+      featuredTitle: "Featured Menu",
+      processTitle: "Buyurtma jarayoni",
+      processStep1Title: "Menu tanlang",
+      processStep1Description:
+        "Taomlarni kategoriya bo'yicha tanlang va savatga qo'shing.",
+      processStep2Title: "Login/Register",
+      processStep2Description:
+        "Buyurtma berishda tizim login/register so'raydi va jarayonni davom ettiradi.",
+      processStep3Title: "To'lov va tasdiq",
+      processStep3Description:
+        "Admin karta orqali to'lab screenshot yuborasiz, admin tasdiqlaydi.",
+      paymentBannerTitle:
+        "Admin kartaga to'lang, screenshot yuklang, tez tasdiq oling.",
+      paymentBannerText:
+        "Buyurtmangiz tasdiqlangach tayyorlash va delivery bosqichlari realtime status bilan ko'rinadi.",
+      paymentBannerButtonText: "To'lov bo'limiga o'tish",
+      offlineTitle: "Offline xizmat ham mavjud",
+      offlineDescription:
+        "Restoranga kelishdan oldin stol band qiling: bo'sh stollar yashil, bandlari qizil ko'rsatiladi.",
+      offlineButtonText: "Stol bron sahifasiga o'tish",
+      testimonialsTitle: "Mijozlar fikri",
+      testimonial1Quote:
+        "\"Buyurtma jarayoni juda sodda, to'lov tasdiqi ham tez bo'ldi.\"",
+      testimonial1Author: "- Diyor, Toshkent",
+      testimonial2Quote:
+        "\"Stol bron funksiyasi juda qulay, restoranga borganimizda joy tayyor edi.\"",
+      testimonial2Author: "- Maftuna, Chilonzor",
+      testimonial3Quote:
+        "\"Admin panel orqali hammasi nazoratda, biznes uchun zo'r yechim.\"",
+      testimonial3Author: "- Komil, Manager",
+      testimonial4Quote:
+        "\"Mobil versiya ham juda qulay ishlaydi, pastki menu zo'r.\"",
+      testimonial4Author: "- Shahzod, Yunusobod",
+    },
+    footer: {
+      title: "Kardeshler Doner",
+      legalLine: "Barcha huquqlar himoyalangan.",
+      description:
+        "Node.js + MongoDB + Cloudinary asosidagi premium fast-food platforma.",
+      address: "Toshkent shahri, Chilonzor tumani, Bunyodkor ko'chasi 17",
+      phone: process.env.SUPPORT_PHONE || "+998 90 777 55 44",
+      email: process.env.ADMIN_EMAIL || "admin@kardeshler.uz",
+      telegram: process.env.SUPPORT_TELEGRAM || "@kardeshler_support",
+      mapEmbedUrl:
+        "https://www.google.com/maps?q=41.2995,69.2401&z=14&output=embed",
+      mapLink: "https://maps.google.com/?q=41.2995,69.2401",
+    },
+  };
+}
+
 const objectId = mongoose.Schema.Types.ObjectId;
 
 const userSchema = new mongoose.Schema(
@@ -232,11 +349,25 @@ const tableReservationSchema = new mongoose.Schema(
 tableReservationSchema.index({ table: 1, visitDate: 1, visitTime: 1, status: 1 });
 tableReservationSchema.index({ createdAt: -1 });
 
+const siteSettingsSchema = new mongoose.Schema(
+  {
+    key: { type: String, required: true, unique: true, default: SETTINGS_DOC_KEY },
+    brand: { type: Object, default: {} },
+    adminCard: { type: Object, default: {} },
+    deliveryServices: { type: Array, default: [] },
+    offlineService: { type: Object, default: {} },
+    landing: { type: Object, default: {} },
+    footer: { type: Object, default: {} },
+  },
+  { timestamps: true, minimize: false },
+);
+
 const User = mongoose.model("User", userSchema);
 const MenuItem = mongoose.model("MenuItem", menuItemSchema);
 const Order = mongoose.model("Order", orderSchema);
 const TableSpot = mongoose.model("TableSpot", tableSpotSchema);
 const TableReservation = mongoose.model("TableReservation", tableReservationSchema);
+const SiteSettings = mongoose.model("SiteSettings", siteSettingsSchema);
 
 const orderStatuses = [
   "new",
@@ -312,6 +443,213 @@ function parseBoolean(value, fallback = false) {
     return value.toLowerCase() === "true";
   }
   return fallback;
+}
+
+function cleanText(value, fallback = "") {
+  if (typeof value !== "string") {
+    return fallback;
+  }
+  return value.trim();
+}
+
+function cleanUrl(value, fallback = "") {
+  const resolved = cleanText(value, "");
+  if (!resolved) return fallback;
+  if (resolved.startsWith("/") || /^https?:\/\//i.test(resolved)) {
+    return resolved;
+  }
+  return fallback;
+}
+
+function normalizeReservationSlots(value, fallback = []) {
+  const source = Array.isArray(value)
+    ? value
+    : typeof value === "string"
+      ? value.split(",")
+      : [];
+  const deduped = [];
+
+  for (const item of source) {
+    const candidate = String(item || "").trim().slice(0, 5);
+    if (!/^\d{2}:\d{2}$/.test(candidate)) continue;
+    if (!deduped.includes(candidate)) {
+      deduped.push(candidate);
+    }
+  }
+
+  return deduped.length ? deduped : fallback;
+}
+
+function normalizeDeliveryServices(value, fallback = []) {
+  if (!Array.isArray(value)) return fallback;
+  const result = [];
+  for (const item of value) {
+    if (!item || typeof item !== "object") continue;
+    const key = cleanText(item.key, "").toLowerCase();
+    const name = cleanText(item.name, "");
+    const eta = cleanText(item.eta, "");
+    if (!key || !name) continue;
+    result.push({ key, name, eta });
+  }
+  return result.length ? result : fallback;
+}
+
+function deepMerge(base, patch) {
+  if (Array.isArray(base)) {
+    return Array.isArray(patch) ? patch : [...base];
+  }
+  if (!base || typeof base !== "object") {
+    return patch === undefined ? base : patch;
+  }
+  if (!patch || typeof patch !== "object" || Array.isArray(patch)) {
+    return { ...base };
+  }
+
+  const merged = { ...base };
+  for (const key of Object.keys(patch)) {
+    if (!(key in base)) continue;
+    const baseValue = base[key];
+    const patchValue = patch[key];
+
+    if (
+      baseValue &&
+      typeof baseValue === "object" &&
+      !Array.isArray(baseValue) &&
+      patchValue &&
+      typeof patchValue === "object" &&
+      !Array.isArray(patchValue)
+    ) {
+      merged[key] = deepMerge(baseValue, patchValue);
+    } else if (patchValue !== undefined) {
+      merged[key] = patchValue;
+    }
+  }
+  return merged;
+}
+
+function normalizeSettingsShape(rawSettings) {
+  const defaults = getDefaultSiteSettings();
+  const merged = deepMerge(defaults, rawSettings || {});
+
+  merged.brand.name = cleanText(merged.brand.name, defaults.brand.name);
+  merged.brand.slogan = cleanText(merged.brand.slogan, defaults.brand.slogan);
+  merged.brand.supportPhone = cleanText(
+    merged.brand.supportPhone,
+    defaults.brand.supportPhone,
+  );
+  merged.brand.supportTelegram = cleanText(
+    merged.brand.supportTelegram,
+    defaults.brand.supportTelegram,
+  );
+  merged.brand.logoUrl = cleanUrl(merged.brand.logoUrl, defaults.brand.logoUrl);
+  merged.brand.logoDarkUrl = cleanUrl(
+    merged.brand.logoDarkUrl,
+    merged.brand.logoUrl || defaults.brand.logoDarkUrl,
+  );
+  merged.brand.faviconUrl = cleanUrl(
+    merged.brand.faviconUrl,
+    defaults.brand.faviconUrl,
+  );
+  merged.brand.logoPublicId = cleanText(merged.brand.logoPublicId, "");
+  merged.brand.logoDarkPublicId = cleanText(merged.brand.logoDarkPublicId, "");
+  merged.brand.faviconPublicId = cleanText(merged.brand.faviconPublicId, "");
+
+  merged.adminCard.cardNumber = cleanText(
+    merged.adminCard.cardNumber,
+    defaults.adminCard.cardNumber,
+  );
+  merged.adminCard.cardHolder = cleanText(
+    merged.adminCard.cardHolder,
+    defaults.adminCard.cardHolder,
+  );
+  merged.adminCard.bankName = cleanText(
+    merged.adminCard.bankName,
+    defaults.adminCard.bankName,
+  );
+  merged.adminCard.note = cleanText(merged.adminCard.note, defaults.adminCard.note);
+
+  merged.deliveryServices = normalizeDeliveryServices(
+    merged.deliveryServices,
+    defaults.deliveryServices,
+  );
+
+  merged.offlineService.enabled = parseBoolean(
+    merged.offlineService.enabled,
+    defaults.offlineService.enabled,
+  );
+  merged.offlineService.workingHours = cleanText(
+    merged.offlineService.workingHours,
+    defaults.offlineService.workingHours,
+  );
+  merged.offlineService.address = cleanText(
+    merged.offlineService.address,
+    defaults.offlineService.address,
+  );
+  merged.offlineService.mapEmbedUrl = cleanUrl(
+    merged.offlineService.mapEmbedUrl,
+    defaults.offlineService.mapEmbedUrl,
+  );
+  merged.offlineService.mapLink = cleanUrl(
+    merged.offlineService.mapLink,
+    defaults.offlineService.mapLink,
+  );
+  merged.offlineService.reservationSlots = normalizeReservationSlots(
+    merged.offlineService.reservationSlots,
+    defaults.offlineService.reservationSlots,
+  );
+
+  for (const key of Object.keys(defaults.landing)) {
+    merged.landing[key] = cleanText(merged.landing[key], defaults.landing[key]);
+  }
+
+  for (const key of Object.keys(defaults.footer)) {
+    if (key.toLowerCase().includes("url") || key.toLowerCase().includes("link")) {
+      merged.footer[key] = cleanUrl(merged.footer[key], defaults.footer[key]);
+      continue;
+    }
+    merged.footer[key] = cleanText(merged.footer[key], defaults.footer[key]);
+  }
+
+  return merged;
+}
+
+function toPublicSettings(normalized) {
+  return {
+    brand: {
+      name: normalized.brand.name,
+      slogan: normalized.brand.slogan,
+      supportPhone: normalized.brand.supportPhone,
+      supportTelegram: normalized.brand.supportTelegram,
+      logoUrl: normalized.brand.logoUrl,
+      logoDarkUrl: normalized.brand.logoDarkUrl,
+      faviconUrl: normalized.brand.faviconUrl,
+    },
+    adminCard: normalized.adminCard,
+    deliveryServices: normalized.deliveryServices,
+    offlineService: normalized.offlineService,
+    landing: normalized.landing,
+    footer: normalized.footer,
+  };
+}
+
+async function ensureSiteSettings() {
+  await SiteSettings.findOneAndUpdate(
+    { key: SETTINGS_DOC_KEY },
+    {
+      $setOnInsert: {
+        key: SETTINGS_DOC_KEY,
+        ...getDefaultSiteSettings(),
+      },
+    },
+    { upsert: true, new: true },
+  );
+}
+
+async function fetchNormalizedSiteSettings() {
+  await ensureSiteSettings();
+  const doc = await SiteSettings.findOne({ key: SETTINGS_DOC_KEY }).lean();
+  const source = doc || getDefaultSiteSettings();
+  return normalizeSettingsShape(source);
 }
 
 function calculateTotals(orderItems, deliveryType) {
@@ -420,39 +758,13 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-app.get("/api/settings", (req, res) => {
-  res.json({
-    brand: {
-      name: BRAND_NAME,
-      slogan: "Tez yetkazib berish, premium ta'm, zamonaviy servis",
-      supportPhone: process.env.SUPPORT_PHONE || "+998 90 777 55 44",
-      supportTelegram: process.env.SUPPORT_TELEGRAM || "@kardeshler_support",
-    },
-    adminCard: adminCardInfo,
-    deliveryServices: [
-      { key: "internal", name: "Kardeshler Express", eta: "20-35 daqiqa" },
-      { key: "partner", name: "Hamkor kuryer", eta: "30-45 daqiqa" },
-    ],
-    offlineService: {
-      enabled: true,
-      workingHours: "10:00 - 23:00",
-      reservationSlots: [
-        "10:00",
-        "11:00",
-        "12:00",
-        "13:00",
-        "14:00",
-        "15:00",
-        "16:00",
-        "17:00",
-        "18:00",
-        "19:00",
-        "20:00",
-        "21:00",
-        "22:00",
-      ],
-    },
-  });
+app.get("/api/settings", async (req, res, next) => {
+  try {
+    const settings = await fetchNormalizedSiteSettings();
+    res.json(toPublicSettings(settings));
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.post("/api/auth/register", async (req, res, next) => {
@@ -1475,6 +1787,106 @@ app.delete(
   },
 );
 
+app.get("/api/admin/settings", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const settings = await fetchNormalizedSiteSettings();
+    res.json(settings);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/admin/settings", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const current = await fetchNormalizedSiteSettings();
+    const incoming = req.body && typeof req.body === "object" ? req.body : {};
+    const merged = normalizeSettingsShape(deepMerge(current, incoming));
+
+    await SiteSettings.findOneAndUpdate(
+      { key: SETTINGS_DOC_KEY },
+      { $set: { key: SETTINGS_DOC_KEY, ...merged } },
+      { upsert: true, new: true },
+    );
+
+    res.json(merged);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post(
+  "/api/admin/settings/asset",
+  authRequired,
+  adminRequired,
+  upload.single("asset"),
+  async (req, res, next) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "Yuklash uchun rasm fayli kerak." });
+      }
+
+      const assetType = cleanText(req.body?.assetType, "");
+      const settings = await fetchNormalizedSiteSettings();
+
+      let previousPublicId = "";
+      let patch = {};
+      let folderName = "kardeshler-doner/branding";
+
+      if (assetType === "logo") {
+        previousPublicId = settings.brand.logoPublicId || "";
+      } else if (assetType === "logoDark") {
+        previousPublicId = settings.brand.logoDarkPublicId || "";
+      } else if (assetType === "favicon") {
+        previousPublicId = settings.brand.faviconPublicId || "";
+      } else {
+        return res.status(400).json({
+          message: "assetType qiymati logo, logoDark yoki favicon bo'lishi kerak.",
+        });
+      }
+
+      const uploadResult = await uploadImageFile(req.file, folderName);
+
+      if (assetType === "logo") {
+        patch = {
+          brand: {
+            logoUrl: uploadResult.url,
+            logoPublicId: uploadResult.publicId,
+          },
+        };
+      } else if (assetType === "logoDark") {
+        patch = {
+          brand: {
+            logoDarkUrl: uploadResult.url,
+            logoDarkPublicId: uploadResult.publicId,
+          },
+        };
+      } else {
+        patch = {
+          brand: {
+            faviconUrl: uploadResult.url,
+            faviconPublicId: uploadResult.publicId,
+          },
+        };
+      }
+
+      const merged = normalizeSettingsShape(deepMerge(settings, patch));
+      await SiteSettings.findOneAndUpdate(
+        { key: SETTINGS_DOC_KEY },
+        { $set: { key: SETTINGS_DOC_KEY, ...merged } },
+        { upsert: true, new: true },
+      );
+
+      if (previousPublicId && previousPublicId !== uploadResult.publicId) {
+        await removeCloudinaryAsset(previousPublicId);
+      }
+
+      return res.json(merged);
+    } catch (error) {
+      return next(error);
+    }
+  },
+);
+
 app.get(["/", "/index", "/index.html"], (req, res) => {
   res.set("Cache-Control", "no-store");
   res.sendFile(path.join(__dirname, "public", "index.html"));
@@ -1516,6 +1928,8 @@ app.use((error, req, res, next) => {
 });
 
 async function seedInitialData() {
+  await ensureSiteSettings();
+
   const adminPhone = normalizePhone(process.env.ADMIN_PHONE || "+998900000000");
   const adminPassword = process.env.ADMIN_PASSWORD || "admin12345";
   const adminName = process.env.ADMIN_NAME || "Kardeshler Super Admin";

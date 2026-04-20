@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kardeshler Doner | Premium Fast-Food Platform</title>
-    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css?v=2.2.1" onerror="this.onerror=null;this.href='/foodwagon-v1.0.0/public/assets/css/theme.css?v=2.2.1';" />
-    <link rel="stylesheet" href="/assets/css/app.css?v=2.2.1" />
+    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css?v=2.3.0" onerror="this.onerror=null;this.href='/foodwagon-v1.0.0/public/assets/css/theme.css?v=2.3.0';" />
+    <link rel="stylesheet" href="/assets/css/app.css?v=2.3.0" />
   </head>
   <body class="kd-layout" data-page="index">
     <nav class="navbar navbar-expand-lg fixed-top kd-navbar">
@@ -37,13 +37,13 @@
       <section class="kd-hero kd-animated mb-4">
         <div class="row align-items-center g-4">
           <div class="col-lg-7">
-            <span class="kd-pill mb-3 d-inline-block">foodwagon-v1.0.0 premium integrated</span>
+            <span class="kd-pill mb-3 d-inline-block" id="landingBadge">foodwagon-v1.0.0 premium integrated</span>
             <h1 class="mb-2" id="brandName">Kardeshler Doner</h1>
             <p class="mb-3" id="brandSlogan">Tez yetkazib berish, premium ta'm, zamonaviy servis</p>
             <div class="d-flex flex-wrap gap-2 mb-3">
-              <button class="kd-btn-primary" id="ctaToMenu" type="button">Menu ko'rish</button>
-              <button class="kd-btn-outline" id="ctaToOrder" type="button">Hozir buyurtma</button>
-              <a class="kd-btn-ghost" href="/tables.html">Stol bron qilish</a>
+              <button class="kd-btn-primary" id="ctaToMenu" type="button"><span id="ctaToMenuText">Menu ko'rish</span></button>
+              <button class="kd-btn-outline" id="ctaToOrder" type="button"><span id="ctaToOrderText">Hozir buyurtma</span></button>
+              <a class="kd-btn-ghost" href="/tables.html"><span id="ctaToTablesText">Stol bron qilish</span></a>
             </div>
             <form class="row g-2 align-items-center" onsubmit="return false;">
               <div class="col-md-8">
@@ -65,30 +65,30 @@
         <div class="kd-feature-strip">
           <article class="kd-feature-item">
             <i class="fas fa-bolt"></i>
-            <h5 class="mb-1 mt-2">Tezkor buyurtma</h5>
-            <p class="kd-meta mb-0">Menu tanlang, 1 klikda savatga qo'shing, to'lovni screenshot bilan tasdiqlang.</p>
+            <h5 class="mb-1 mt-2" id="feature1Title">Tezkor buyurtma</h5>
+            <p class="kd-meta mb-0" id="feature1Description">Menu tanlang, 1 klikda savatga qo'shing, to'lovni screenshot bilan tasdiqlang.</p>
           </article>
           <article class="kd-feature-item">
             <i class="fas fa-shield-halved"></i>
-            <h5 class="mb-1 mt-2">To'liq nazorat</h5>
-            <p class="kd-meta mb-0">Admin panelda users, menu, orders, delivery va offline stollar nazorati.</p>
+            <h5 class="mb-1 mt-2" id="feature2Title">To'liq nazorat</h5>
+            <p class="kd-meta mb-0" id="feature2Description">Admin panelda users, menu, orders, delivery va offline stollar nazorati.</p>
           </article>
           <article class="kd-feature-item">
             <i class="fas fa-cloud-arrow-up"></i>
-            <h5 class="mb-1 mt-2">Cloudinary media</h5>
-            <p class="kd-meta mb-0">To'lov screenshotlari va rasmlar xavfsiz saqlanadi.</p>
+            <h5 class="mb-1 mt-2" id="feature3Title">Cloudinary media</h5>
+            <p class="kd-meta mb-0" id="feature3Description">To'lov screenshotlari va rasmlar xavfsiz saqlanadi.</p>
           </article>
           <article class="kd-feature-item">
             <i class="fas fa-moon"></i>
-            <h5 class="mb-1 mt-2">Day/Night mode</h5>
-            <p class="kd-meta mb-0">Kunduzgi va tungi premium temalar barcha qurilmalarda mos.</p>
+            <h5 class="mb-1 mt-2" id="feature4Title">Day/Night mode</h5>
+            <p class="kd-meta mb-0" id="feature4Description">Kunduzgi va tungi premium temalar barcha qurilmalarda mos.</p>
           </article>
         </div>
       </section>
 
       <section class="mb-4">
         <div class="kd-section-title">
-          <h2>Nega bizni tanlashadi?</h2>
+          <h2 id="whyChooseTitle">Nega bizni tanlashadi?</h2>
         </div>
         <div class="kd-grid" id="landingStatsGrid">
           <div class="kd-stat-card">
@@ -116,7 +116,7 @@
 
       <section class="mb-4">
         <div class="kd-section-title">
-          <h2>Featured Menu</h2>
+          <h2 id="featuredTitle">Featured Menu</h2>
           <a href="/menu.html" class="kd-btn-ghost">Barchasi</a>
         </div>
         <div class="kd-grid" id="featuredMenuGrid"></div>
@@ -124,23 +124,23 @@
 
       <section class="mb-4 kd-panel p-3 p-md-4">
         <div class="kd-section-title mb-3">
-          <h2>Buyurtma jarayoni</h2>
+          <h2 id="processTitle">Buyurtma jarayoni</h2>
         </div>
         <div class="kd-timeline">
           <article class="kd-timeline-step">
             <span class="kd-pill">01</span>
-            <h5 class="mt-2 mb-1">Menu tanlang</h5>
-            <p class="kd-meta mb-0">Taomlarni kategoriya bo'yicha tanlang va savatga qo'shing.</p>
+            <h5 class="mt-2 mb-1" id="step1Title">Menu tanlang</h5>
+            <p class="kd-meta mb-0" id="step1Description">Taomlarni kategoriya bo'yicha tanlang va savatga qo'shing.</p>
           </article>
           <article class="kd-timeline-step">
             <span class="kd-pill">02</span>
-            <h5 class="mt-2 mb-1">Login/Register</h5>
-            <p class="kd-meta mb-0">Buyurtma berishda tizim login/register so'raydi va jarayonni davom ettiradi.</p>
+            <h5 class="mt-2 mb-1" id="step2Title">Login/Register</h5>
+            <p class="kd-meta mb-0" id="step2Description">Buyurtma berishda tizim login/register so'raydi va jarayonni davom ettiradi.</p>
           </article>
           <article class="kd-timeline-step">
             <span class="kd-pill">03</span>
-            <h5 class="mt-2 mb-1">To'lov va tasdiq</h5>
-            <p class="kd-meta mb-0">Admin karta orqali to'lab screenshot yuborasiz, admin tasdiqlaydi.</p>
+            <h5 class="mt-2 mb-1" id="step3Title">To'lov va tasdiq</h5>
+            <p class="kd-meta mb-0" id="step3Description">Admin karta orqali to'lab screenshot yuborasiz, admin tasdiqlaydi.</p>
           </article>
         </div>
       </section>
@@ -149,16 +149,16 @@
         <div class="row g-3">
           <div class="col-lg-7">
             <div class="kd-panel p-3 p-md-4 h-100" style="background:url('/foodwagon-v1.0.0/public/assets/img/gallery/cta-two-bg.png') center/cover no-repeat; border-color: rgba(255,99,99,.35);">
-              <h3 class="text-white mb-2">Admin kartaga to'lang, screenshot yuklang, tez tasdiq oling.</h3>
-              <p class="text-white mb-3">Buyurtmangiz tasdiqlangach tayyorlash va delivery bosqichlari realtime status bilan ko'rinadi.</p>
-              <a class="kd-btn-primary" href="/payment.html">To'lov bo'limiga o'tish</a>
+              <h3 class="text-white mb-2" id="paymentBannerTitle">Admin kartaga to'lang, screenshot yuklang, tez tasdiq oling.</h3>
+              <p class="text-white mb-3" id="paymentBannerText">Buyurtmangiz tasdiqlangach tayyorlash va delivery bosqichlari realtime status bilan ko'rinadi.</p>
+              <a class="kd-btn-primary" href="/payment.html" id="paymentBannerButtonText">To'lov bo'limiga o'tish</a>
             </div>
           </div>
           <div class="col-lg-5">
             <div class="kd-panel p-3 p-md-4 h-100">
-              <h4 class="mb-2">Offline xizmat ham mavjud</h4>
-              <p class="kd-meta">Restoranga kelishdan oldin stol band qiling: bo'sh stollar yashil, bandlari qizil ko'rsatiladi.</p>
-              <a class="kd-btn-outline" href="/tables.html">Stol bron sahifasiga o'tish</a>
+              <h4 class="mb-2" id="offlineTitle">Offline xizmat ham mavjud</h4>
+              <p class="kd-meta" id="offlineDescription">Restoranga kelishdan oldin stol band qiling: bo'sh stollar yashil, bandlari qizil ko'rsatiladi.</p>
+              <a class="kd-btn-outline" href="/tables.html" id="offlineButtonText">Stol bron sahifasiga o'tish</a>
             </div>
           </div>
         </div>
@@ -166,26 +166,35 @@
 
       <section class="kd-panel p-3 p-md-4 mb-4">
         <div class="kd-section-title mb-2">
-          <h2>Mijozlar fikri</h2>
+          <h2 id="testimonialsTitle">Mijozlar fikri</h2>
         </div>
         <div class="kd-grid">
           <article class="kd-stat-card">
-            <p>"Buyurtma jarayoni juda sodda, to'lov tasdiqi ham tez bo'ldi."</p>
-            <small class="kd-meta">- Diyor, Toshkent</small>
+            <p id="testimonial1Quote">"Buyurtma jarayoni juda sodda, to'lov tasdiqi ham tez bo'ldi."</p>
+            <small class="kd-meta" id="testimonial1Author">- Diyor, Toshkent</small>
           </article>
           <article class="kd-stat-card">
-            <p>"Stol bron funksiyasi juda qulay, restoranga borganimizda joy tayyor edi."</p>
-            <small class="kd-meta">- Maftuna, Chilonzor</small>
+            <p id="testimonial2Quote">"Stol bron funksiyasi juda qulay, restoranga borganimizda joy tayyor edi."</p>
+            <small class="kd-meta" id="testimonial2Author">- Maftuna, Chilonzor</small>
           </article>
           <article class="kd-stat-card">
-            <p>"Admin panel orqali hammasi nazoratda, biznes uchun zo'r yechim."</p>
-            <small class="kd-meta">- Komil, Manager</small>
+            <p id="testimonial3Quote">"Admin panel orqali hammasi nazoratda, biznes uchun zo'r yechim."</p>
+            <small class="kd-meta" id="testimonial3Author">- Komil, Manager</small>
           </article>
           <article class="kd-stat-card">
-            <p>"Mobil versiya ham juda qulay ishlaydi, pastki menu zo'r."</p>
-            <small class="kd-meta">- Shahzod, Yunusobod</small>
+            <p id="testimonial4Quote">"Mobil versiya ham juda qulay ishlaydi, pastki menu zo'r."</p>
+            <small class="kd-meta" id="testimonial4Author">- Shahzod, Yunusobod</small>
           </article>
         </div>
+      </section>
+
+      <section class="kd-panel p-3 p-md-4 mb-4">
+        <div class="kd-section-title mb-2">
+          <h2>Offline manzil xaritasi</h2>
+          <a id="offlineMapLink" class="kd-btn-ghost" href="https://maps.google.com/?q=41.2995,69.2401" target="_blank" rel="noreferrer">Xaritada ochish</a>
+        </div>
+        <p class="kd-meta mb-3" id="landingAddress">Toshkent shahri, Chilonzor tumani, Bunyodkor ko'chasi 17</p>
+        <iframe id="landingMapEmbed" class="kd-footer-map" src="https://www.google.com/maps?q=41.2995,69.2401&z=14&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </section>
     </main>
 
@@ -199,9 +208,10 @@
     <script src="/foodwagon-v1.0.0/public/vendors/@popperjs/popper.min.js"></script>
     <script src="/foodwagon-v1.0.0/public/vendors/bootstrap/bootstrap.min.js"></script>
     <script src="/foodwagon-v1.0.0/public/vendors/fontawesome/all.min.js"></script>
-    <script src="/assets/js/app.js?v=2.2.1"></script>
-    <script src="/assets/js/landing.js?v=2.2.1"></script>
+    <script src="/assets/js/app.js?v=2.3.0"></script>
+    <script src="/assets/js/landing.js?v=2.3.0"></script>
   </body>
 </html>
+
 
 
