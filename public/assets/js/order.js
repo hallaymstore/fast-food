@@ -118,8 +118,11 @@
       return;
     }
 
-    const authed = await ensureAuth();
-    if (!authed) return;
+    const authed = await ensureAuth({ storeReturnTo: true });
+    if (!authed) {
+      toast("Buyurtma berish uchun login/register qiling.", "error");
+      return;
+    }
 
     const user = getCurrentUser();
     const form = new FormData(orderForm);

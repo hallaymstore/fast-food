@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stol Bron | Kardeshler Doner</title>
+    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css?v=2.2.0" onerror="this.onerror=null;this.href='/foodwagon-v1.0.0/public/assets/css/theme.css?v=2.2.0';" />
+    <link rel="stylesheet" href="/assets/css/app.css?v=2.2.0" />
+  </head>
+  <body class="kd-layout" data-page="tables">
+    <nav class="navbar navbar-expand-lg fixed-top kd-navbar">
+      <div class="container">
+        <a class="navbar-brand kd-brand" href="/index.html">Kardeshler Doner<small>Offline Stol Bron Xizmati</small></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#kdNav"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="kdNav">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/index.html">Bosh sahifa</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/menu.html">Menu</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/order.html">Buyurtma <span class="badge bg-danger cart-count d-none"></span></a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/tables.html">Stol bron</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/payment.html">To'lov</a></li>
+            <li class="nav-item"><button class="kd-theme-toggle" id="themeToggle" type="button"><i class="fas fa-moon"></i></button></li>
+            <li class="nav-item"><div id="authArea"></div></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-3 py-md-4">
+      <section class="kd-panel p-3 p-md-4 mb-4">
+        <div class="kd-section-title mb-2">
+          <h2>Offline xizmat uchun stol bron</h2>
+          <span class="kd-pill">Ish vaqti: <span id="offlineWorkingHours">10:00 - 23:00</span></span>
+        </div>
+        <p class="kd-meta mb-2">
+          Bo'sh stol yashil, band stol qizil rangda ko'rsatiladi. Stol tanlab bron yuborasiz, admin tasdiqlagach bron tasdiqlanadi.
+        </p>
+        <div class="d-flex flex-wrap gap-3 kd-compact">
+          <span><span class="kd-status-dot green"></span> Bo'sh stol</span>
+          <span><span class="kd-status-dot red"></span> Band stol</span>
+        </div>
+      </section>
+
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <section class="kd-panel p-3 p-md-4">
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                <label class="kd-compact d-block mb-1">Sana</label>
+                <input id="reservationDate" name="visitDate" type="date" class="form-control" />
+              </div>
+              <div class="col-md-6">
+                <label class="kd-compact d-block mb-1">Vaqt</label>
+                <select id="reservationTime" name="visitTime" class="form-select"></select>
+              </div>
+            </div>
+
+            <div id="tableMap" class="kd-table-map"></div>
+            <div class="mt-2" id="selectedTableInfo"></div>
+          </section>
+        </div>
+
+        <div class="col-lg-5">
+          <section class="kd-panel p-3 p-md-4 mb-3">
+            <h4 class="mb-2">Bron yuborish</h4>
+            <form id="tableReservationForm" class="d-grid gap-2">
+              <label>
+                Mehmonlar soni
+                <input name="guestCount" type="number" class="form-control" min="1" max="20" value="2" required />
+              </label>
+              <label>
+                Izoh
+                <textarea name="note" class="form-control" rows="3" placeholder="Qo'shimcha izoh"></textarea>
+              </label>
+              <button type="submit" class="kd-btn-primary">Bron so'rov yuborish</button>
+            </form>
+          </section>
+
+          <section class="kd-panel p-3 p-md-4">
+            <h4 class="mb-2">Mening stol bronlarim</h4>
+            <div class="kd-table-wrap">
+              <table class="kd-table">
+                <thead>
+                  <tr>
+                    <th>Kod</th>
+                    <th>Stol</th>
+                    <th>Vaqt</th>
+                    <th>Kishi</th>
+                    <th>Status</th>
+                    <th>Izoh</th>
+                    <th>Sana</th>
+                  </tr>
+                </thead>
+                <tbody id="tableReservationHistory"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="container py-3 kd-footer"><span>Kardeshler Doner Offline Reservation</span></footer>
+
+    <script src="/foodwagon-v1.0.0/public/vendors/@popperjs/popper.min.js"></script>
+    <script src="/foodwagon-v1.0.0/public/vendors/bootstrap/bootstrap.min.js"></script>
+    <script src="/foodwagon-v1.0.0/public/vendors/fontawesome/all.min.js"></script>
+    <script src="/assets/js/app.js?v=2.2.0"></script>
+    <script src="/assets/js/tables.js?v=2.2.0"></script>
+  </body>
+</html>
+
+

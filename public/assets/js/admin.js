@@ -1,20 +1,15 @@
 ﻿document.addEventListener("DOMContentLoaded", () => {
   if (!window.KDApp) return;
 
-  const {
-    api,
-    qs,
-    escapeHtml,
-    formatCurrency,
-    formatDate,
-    badgeHtml,
-    toast,
-  } = window.KDApp;
+  const { api, qs, escapeHtml, formatCurrency, formatDate, badgeHtml, toast } =
+    window.KDApp;
 
   const state = {
     users: [],
     menu: [],
     orders: [],
+    tables: [],
+    tableReservations: [],
   };
 
   const STATUS_OPTIONS = [
@@ -26,8 +21,20 @@
     "cancelled",
   ];
 
+  const TABLE_RESERVATION_STATUSES = [
+    "pending",
+    "approved",
+    "rejected",
+    "cancelled",
+    "completed",
+  ];
+
+  let dragState = null;
+
   function optionTemplate(value, selected) {
-    return `<option value="${escapeHtml(value)}" ${value === selected ? "selected" : ""}>${escapeHtml(window.KDApp.statusText(value))}</option>`;
+    return `<option value="${escapeHtml(value)}" ${
+      value === selected ? "selected" : ""
+    }>${escapeHtml(window.KDApp.statusText(value))}</option>`;
   }
 
   function setOverview(data) {
@@ -41,6 +48,8 @@
       ovStatusPreparing: data.statusSummary?.preparing || 0,
       ovStatusDelivery: data.statusSummary?.out_for_delivery || 0,
       ovStatusDelivered: data.statusSummary?.delivered || 0,
+      ovTableSpots: data.tableSpots || 0,
+      ovPendingTableReservations: data.pendingTableReservations || 0,
     };
 
     Object.entries(map).forEach(([id, value]) => {
@@ -54,7 +63,8 @@
     if (!body) return;
 
     if (!state.users.length) {
-      body.innerHTML = '<tr><td colspan="7" class="text-center kd-meta">Foydalanuvchilar topilmadi.</td></tr>';
+      body.innerHTML =
+        '<tr><td colspan="7" class="text-center kd-meta">Foydalanuvchilar topilmadi.</td></tr>';
       return;
     }
 
@@ -66,12 +76,18 @@
         <td>${escapeHtml(user.phone)}</td>
         <td>${escapeHtml(user.email || "-")}</td>
         <td>
-          <select class="form-select form-select-sm user-role" data-id="${escapeHtml(user.id)}">
+          <select class="form-select form-select-sm user-role" data-id="${escapeHtml(
+            user.id,
+          )}">
             <option value="user" ${user.role === "user" ? "selected" : ""}>User</option>
-            <option value="admin" ${user.role === "admin" ? "selected" : ""}>Admin</option>
+            <option value="admin" ${
+              user.role === "admin" ? "selected" : ""
+            }>Admin</option>
           </select>
         </td>
-        <td><input class="form-check-input user-active" type="checkbox" data-id="${escapeHtml(user.id)}" ${user.isActive ? "checked" : ""}></td>
+        <td><input class="form-check-input user-active" type="checkbox" data-id="${escapeHtml(
+          user.id,
+        )}" ${user.isActive ? "checked" : ""}></td>
         <td>${user.orderCount || 0}</td>
         <td>${formatCurrency(user.totalSpent || 0)}</td>
       </tr>
@@ -85,7 +101,8 @@
     if (!body) return;
 
     if (!state.menu.length) {
-      body.innerHTML = '<tr><td colspan="7" class="text-center kd-meta">Menu mavjud emas.</td></tr>';
+      body.innerHTML =
+        '<tr><td colspan="7" class="text-center kd-meta">Menu mavjud emas.</td></tr>';
       return;
     }
 
@@ -93,7 +110,9 @@
       .map(
         (item) => `
       <tr>
-        <td><img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.name)}" style="width:52px;height:52px;object-fit:cover;border-radius:10px"></td>
+        <td><img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(
+          item.name,
+        )}" style="width:52px;height:52px;object-fit:cover;border-radius:10px"></td>
         <td>${escapeHtml(item.name)}</td>
         <td>${escapeHtml(item.category)}</td>
         <td>${formatCurrency(item.price)}</td>
@@ -101,8 +120,12 @@
         <td>${item.isFeatured ? "Ha" : "Yo'q"}</td>
         <td>
           <div class="d-flex gap-1">
-            <button class="kd-btn-ghost kd-compact menu-edit" data-id="${escapeHtml(item._id)}">Edit</button>
-            <button class="kd-btn-outline kd-compact menu-delete" data-id="${escapeHtml(item._id)}">Delete</button>
+            <button class="kd-btn-ghost kd-compact menu-edit" data-id="${escapeHtml(
+              item._id,
+            )}">Edit</button>
+            <button class="kd-btn-outline kd-compact menu-delete" data-id="${escapeHtml(
+              item._id,
+            )}">Delete</button>
           </div>
         </td>
       </tr>
@@ -116,14 +139,17 @@
     if (!body) return;
 
     if (!state.orders.length) {
-      body.innerHTML = '<tr><td colspan="8" class="text-center kd-meta">Buyurtmalar topilmadi.</td></tr>';
+      body.innerHTML =
+        '<tr><td colspan="8" class="text-center kd-meta">Buyurtmalar topilmadi.</td></tr>';
       return;
     }
 
     body.innerHTML = state.orders
       .map((order) => {
-        const customerName = order.customerSnapshot?.fullName || order.user?.fullName || "-";
-        const customerPhone = order.customerSnapshot?.phone || order.user?.phone || "-";
+        const customerName =
+          order.customerSnapshot?.fullName || order.user?.fullName || "-";
+        const customerPhone =
+          order.customerSnapshot?.phone || order.user?.phone || "-";
         return `
           <tr>
             <td>
@@ -134,42 +160,198 @@
             <td>
               <div>${escapeHtml(customerName)}</div>
               <div class="kd-meta">${escapeHtml(customerPhone)}</div>
-              <div class="kd-meta">${escapeHtml(order.customerSnapshot?.address || "-")}</div>
+              <div class="kd-meta">${escapeHtml(
+                order.customerSnapshot?.address || "-",
+              )}</div>
             </td>
             <td>${formatCurrency(order.total)}</td>
             <td>${badgeHtml(order.payment?.status || "not_submitted")}</td>
             <td>
               <div class="d-flex flex-column gap-1">
-                <select class="form-select form-select-sm order-status" data-id="${escapeHtml(order.id)}">
-                  ${STATUS_OPTIONS.map((status) => optionTemplate(status, order.status)).join("")}
+                <select class="form-select form-select-sm order-status" data-id="${escapeHtml(
+                  order.id,
+                )}">
+                  ${STATUS_OPTIONS.map((status) => optionTemplate(status, order.status)).join(
+                    "",
+                  )}
                 </select>
-                <button class="kd-btn-primary kd-compact order-status-save" data-id="${escapeHtml(order.id)}">Status saqlash</button>
+                <button class="kd-btn-primary kd-compact order-status-save" data-id="${escapeHtml(
+                  order.id,
+                )}">Status saqlash</button>
               </div>
             </td>
             <td>
-              ${order.payment?.proofUrl ? `<a href="${escapeHtml(order.payment.proofUrl)}" target="_blank" class="kd-btn-ghost kd-compact">Screenshot</a>` : '<span class="kd-meta">Yoq</span>'}
+              ${
+                order.payment?.proofUrl
+                  ? `<a href="${escapeHtml(
+                      order.payment.proofUrl,
+                    )}" target="_blank" class="kd-btn-ghost kd-compact">Screenshot</a>`
+                  : '<span class="kd-meta">Yoq</span>'
+              }
               <div class="mt-1 kd-meta">${escapeHtml(order.payment?.note || "")}</div>
               <div class="d-flex gap-1 mt-1">
-                <button class="kd-btn-primary kd-compact payment-approve" data-id="${escapeHtml(order.id)}">Tasdiqlash</button>
-                <button class="kd-btn-outline kd-compact payment-reject" data-id="${escapeHtml(order.id)}">Rad etish</button>
+                <button class="kd-btn-primary kd-compact payment-approve" data-id="${escapeHtml(
+                  order.id,
+                )}">Tasdiqlash</button>
+                <button class="kd-btn-outline kd-compact payment-reject" data-id="${escapeHtml(
+                  order.id,
+                )}">Rad etish</button>
               </div>
             </td>
             <td>
               <div class="d-grid gap-1" style="min-width:190px">
-                <select class="form-select form-select-sm delivery-service" data-id="${escapeHtml(order.id)}">
-                  <option value="internal" ${order.delivery?.service === "internal" ? "selected" : ""}>Kardeshler Express</option>
-                  <option value="partner" ${order.delivery?.service === "partner" ? "selected" : ""}>Partner</option>
+                <select class="form-select form-select-sm delivery-service" data-id="${escapeHtml(
+                  order.id,
+                )}">
+                  <option value="internal" ${
+                    order.delivery?.service === "internal" ? "selected" : ""
+                  }>Kardeshler Express</option>
+                  <option value="partner" ${
+                    order.delivery?.service === "partner" ? "selected" : ""
+                  }>Partner</option>
                 </select>
-                <input class="form-control form-control-sm delivery-rider" data-id="${escapeHtml(order.id)}" value="${escapeHtml(order.delivery?.riderName || "")}" placeholder="Kuryer ismi">
-                <input class="form-control form-control-sm delivery-phone" data-id="${escapeHtml(order.id)}" value="${escapeHtml(order.delivery?.riderPhone || "")}" placeholder="Kuryer telefoni">
-                <input class="form-control form-control-sm delivery-eta" data-id="${escapeHtml(order.id)}" type="number" min="0" value="${Number(order.delivery?.etaMinutes || 0)}" placeholder="ETA (daq)">
-                <input class="form-control form-control-sm delivery-tracking" data-id="${escapeHtml(order.id)}" value="${escapeHtml(order.delivery?.trackingCode || "")}" placeholder="Tracking kod">
-                <button class="kd-btn-ghost kd-compact delivery-save" data-id="${escapeHtml(order.id)}">Delivery saqlash</button>
+                <input class="form-control form-control-sm delivery-rider" data-id="${escapeHtml(
+                  order.id,
+                )}" value="${escapeHtml(
+          order.delivery?.riderName || "",
+        )}" placeholder="Kuryer ismi">
+                <input class="form-control form-control-sm delivery-phone" data-id="${escapeHtml(
+                  order.id,
+                )}" value="${escapeHtml(
+          order.delivery?.riderPhone || "",
+        )}" placeholder="Kuryer telefoni">
+                <input class="form-control form-control-sm delivery-eta" data-id="${escapeHtml(
+                  order.id,
+                )}" type="number" min="0" value="${Number(
+          order.delivery?.etaMinutes || 0,
+        )}" placeholder="ETA (daq)">
+                <input class="form-control form-control-sm delivery-tracking" data-id="${escapeHtml(
+                  order.id,
+                )}" value="${escapeHtml(
+          order.delivery?.trackingCode || "",
+        )}" placeholder="Tracking kod">
+                <button class="kd-btn-ghost kd-compact delivery-save" data-id="${escapeHtml(
+                  order.id,
+                )}">Delivery saqlash</button>
               </div>
             </td>
           </tr>
         `;
       })
+      .join("");
+  }
+
+  function renderTablesList() {
+    const body = qs("#adminTablesBody");
+    if (!body) return;
+
+    if (!state.tables.length) {
+      body.innerHTML =
+        '<tr><td colspan="7" class="text-center kd-meta">Stollar mavjud emas.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = state.tables
+      .map(
+        (table) => `
+      <tr>
+        <td>${Number(table.number)}</td>
+        <td>${escapeHtml(table.label || `Stol ${table.number}`)}</td>
+        <td>${Number(table.capacity || 0)}</td>
+        <td>${escapeHtml(table.zone || "-")}</td>
+        <td>${table.shape === "round" ? "Doira" : "To'rtburchak"}</td>
+        <td>${table.isActive ? "Ha" : "Yo'q"}</td>
+        <td>
+          <div class="d-flex gap-1">
+            <button class="kd-btn-ghost kd-compact table-edit" data-id="${escapeHtml(
+              table._id,
+            )}">Edit</button>
+            <button class="kd-btn-outline kd-compact table-delete" data-id="${escapeHtml(
+              table._id,
+            )}">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `,
+      )
+      .join("");
+  }
+
+  function renderAdminTableMap() {
+    const map = qs("#adminTableMap");
+    if (!map) return;
+
+    if (!state.tables.length) {
+      map.innerHTML = '<div class="kd-empty">Stollarni qo\'shing.</div>';
+      return;
+    }
+
+    map.innerHTML = state.tables
+      .map((table) => {
+        const left = Math.max(0, Math.min(Number(table.x) || 0, 0.95)) * 100;
+        const top = Math.max(0, Math.min(Number(table.y) || 0, 0.95)) * 100;
+        const width = Math.max(0.08, Math.min(Number(table.width) || 0.18, 0.4)) * 100;
+        const height = Math.max(0.08, Math.min(Number(table.height) || 0.18, 0.4)) * 100;
+        return `
+          <button
+            type="button"
+            class="kd-table-spot ${escapeHtml(table.shape || "rect")} ${
+          table.isActive ? "available" : "busy"
+        }"
+            data-id="${escapeHtml(table._id)}"
+            style="left:${left}%;top:${top}%;width:${width}%;height:${height}%;"
+            title="Drag qilish mumkin"
+          >
+            <span>${escapeHtml(String(table.number))}</span>
+          </button>
+        `;
+      })
+      .join("");
+  }
+
+  function renderTableReservations() {
+    const body = qs("#adminTableReservationsBody");
+    if (!body) return;
+
+    if (!state.tableReservations.length) {
+      body.innerHTML =
+        '<tr><td colspan="7" class="text-center kd-meta">Stol bron so\'rovlari yo\'q.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = state.tableReservations
+      .map(
+        (item) => `
+      <tr>
+        <td>${escapeHtml(item.reservationCode)}</td>
+        <td>
+          <div>${escapeHtml(item.customerSnapshot?.fullName || item.user?.fullName || "-")}</div>
+          <div class="kd-meta">${escapeHtml(item.customerSnapshot?.phone || item.user?.phone || "-")}</div>
+        </td>
+        <td>${escapeHtml(item.table?.label || `Stol ${item.table?.number || "-"}`)}</td>
+        <td>${escapeHtml(item.visitDate)} ${escapeHtml(item.visitTime)}</td>
+        <td>${Number(item.guestCount || 1)}</td>
+        <td>${badgeHtml(item.status)}</td>
+        <td>
+          <div class="d-grid gap-1" style="min-width:170px">
+            <select class="form-select form-select-sm reservation-status" data-id="${escapeHtml(
+              item._id,
+            )}">
+              ${TABLE_RESERVATION_STATUSES.map((status) => optionTemplate(status, item.status)).join(
+                "",
+              )}
+            </select>
+            <input class="form-control form-control-sm reservation-note" data-id="${escapeHtml(
+              item._id,
+            )}" placeholder="Admin izoh" value="${escapeHtml(item.adminNote || "")}">
+            <button class="kd-btn-primary kd-compact reservation-save" data-id="${escapeHtml(
+              item._id,
+            )}">Saqlash</button>
+          </div>
+        </td>
+      </tr>
+    `,
+      )
       .join("");
   }
 
@@ -200,13 +382,124 @@
     renderOrders();
   }
 
+  async function loadTables() {
+    state.tables = await api("/api/admin/tables");
+    renderTablesList();
+    renderAdminTableMap();
+  }
+
+  async function loadTableReservations() {
+    const status = qs("#tableReservationStatusFilter")?.value || "all";
+    const query = status === "all" ? "" : `?status=${encodeURIComponent(status)}`;
+    state.tableReservations = await api(`/api/admin/tables/reservations${query}`);
+    renderTableReservations();
+  }
+
   async function loadAll() {
     try {
-      await Promise.all([loadOverview(), loadUsers(), loadMenu(), loadOrders()]);
+      await Promise.all([
+        loadOverview(),
+        loadUsers(),
+        loadMenu(),
+        loadOrders(),
+        loadTables(),
+        loadTableReservations(),
+      ]);
     } catch (error) {
       toast(error.message, "error");
     }
   }
+
+  async function persistTablePosition(id, x, y) {
+    try {
+      await api(`/api/admin/tables/${id}`, {
+        method: "PUT",
+        body: JSON.stringify({ x, y }),
+      });
+      toast("Stol joylashuvi saqlandi.", "success");
+      await loadTables();
+    } catch (error) {
+      toast(error.message, "error");
+      await loadTables();
+    }
+  }
+
+  qs("#adminTableMap")?.addEventListener("pointerdown", (event) => {
+    const spot = event.target.closest(".kd-table-spot");
+    if (!spot) return;
+
+    const container = qs("#adminTableMap");
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+    const spotRect = spot.getBoundingClientRect();
+
+    dragState = {
+      id: spot.dataset.id,
+      spot,
+      container,
+      offsetX: event.clientX - spotRect.left,
+      offsetY: event.clientY - spotRect.top,
+      containerRect: rect,
+    };
+
+    spot.classList.add("dragging");
+    spot.setPointerCapture(event.pointerId);
+  });
+
+  qs("#adminTableMap")?.addEventListener("pointermove", (event) => {
+    if (!dragState) return;
+
+    const { containerRect, spot, offsetX, offsetY } = dragState;
+    const xPx = event.clientX - containerRect.left - offsetX;
+    const yPx = event.clientY - containerRect.top - offsetY;
+
+    const widthPx = spot.offsetWidth;
+    const heightPx = spot.offsetHeight;
+    const clampedX = Math.max(0, Math.min(xPx, containerRect.width - widthPx));
+    const clampedY = Math.max(0, Math.min(yPx, containerRect.height - heightPx));
+
+    spot.style.left = `${(clampedX / containerRect.width) * 100}%`;
+    spot.style.top = `${(clampedY / containerRect.height) * 100}%`;
+  });
+
+  qs("#adminTableMap")?.addEventListener("pointerup", async (event) => {
+    if (!dragState) return;
+
+    const { spot, containerRect, id } = dragState;
+    spot.classList.remove("dragging");
+
+    const leftPercent = Number.parseFloat(spot.style.left || "0") || 0;
+    const topPercent = Number.parseFloat(spot.style.top || "0") || 0;
+    const table = state.tables.find((item) => item._id === id);
+
+    dragState = null;
+
+    if (!table) return;
+
+    const widthRatio = (spot.offsetWidth || 0) / (containerRect.width || 1);
+    const heightRatio = (spot.offsetHeight || 0) / (containerRect.height || 1);
+    const x = Math.max(0, Math.min(leftPercent / 100, 0.95));
+    const y = Math.max(0, Math.min(topPercent / 100, 0.95));
+
+    try {
+      await api(`/api/admin/tables/${id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          x,
+          y,
+          width: Math.max(0.08, Math.min(widthRatio || table.width || 0.18, 0.4)),
+          height: Math.max(0.08, Math.min(heightRatio || table.height || 0.18, 0.4)),
+        }),
+      });
+
+      toast("Stol pozitsiyasi yangilandi.", "success");
+      await loadTables();
+    } catch (error) {
+      toast(error.message, "error");
+      await loadTables();
+    }
+  });
 
   qs("#adminUsersBody")?.addEventListener("change", async (event) => {
     const rowTarget = event.target;
@@ -381,8 +674,115 @@
     }
   });
 
+  qs("#adminTablesBody")?.addEventListener("click", async (event) => {
+    const editButton = event.target.closest(".table-edit");
+    const deleteButton = event.target.closest(".table-delete");
+
+    if (editButton) {
+      const table = state.tables.find((item) => item._id === editButton.dataset.id);
+      if (!table) return;
+      qs("#tableId").value = table._id;
+      qs("#tableNumber").value = table.number;
+      qs("#tableLabel").value = table.label || "";
+      qs("#tableCapacity").value = table.capacity || 4;
+      qs("#tableZone").value = table.zone || "Asosiy zal";
+      qs("#tableShape").value = table.shape || "rect";
+      qs("#tableActive").checked = Boolean(table.isActive);
+      qs("#tableFormTitle").textContent = `Stol ${table.number} tahrirlash`;
+      return;
+    }
+
+    if (deleteButton) {
+      const ok = window.confirm("Stolni o'chirishni tasdiqlaysizmi?");
+      if (!ok) return;
+      try {
+        await api(`/api/admin/tables/${deleteButton.dataset.id}`, { method: "DELETE" });
+        toast("Stol o'chirildi.", "success");
+        await loadTables();
+        await loadOverview();
+      } catch (error) {
+        toast(error.message, "error");
+      }
+    }
+  });
+
+  qs("#tableCancelEdit")?.addEventListener("click", () => {
+    qs("#tableForm")?.reset();
+    qs("#tableId").value = "";
+    qs("#tableFormTitle").textContent = "Yangi stol qo'shish";
+    qs("#tableCapacity").value = 4;
+    qs("#tableZone").value = "Asosiy zal";
+    qs("#tableShape").value = "rect";
+    qs("#tableActive").checked = true;
+  });
+
+  qs("#tableForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const tableId = String(qs("#tableId")?.value || "").trim();
+    const payload = {
+      number: Number(qs("#tableNumber")?.value || 1),
+      label: qs("#tableLabel")?.value || "",
+      capacity: Number(qs("#tableCapacity")?.value || 4),
+      zone: qs("#tableZone")?.value || "Asosiy zal",
+      shape: qs("#tableShape")?.value || "rect",
+      isActive: Boolean(qs("#tableActive")?.checked),
+    };
+
+    try {
+      if (tableId) {
+        await api(`/api/admin/tables/${tableId}`, {
+          method: "PUT",
+          body: JSON.stringify(payload),
+        });
+        toast("Stol yangilandi.", "success");
+      } else {
+        await api("/api/admin/tables", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        toast("Stol qo'shildi.", "success");
+      }
+
+      qs("#tableForm")?.reset();
+      qs("#tableId").value = "";
+      qs("#tableFormTitle").textContent = "Yangi stol qo'shish";
+      qs("#tableCapacity").value = 4;
+      qs("#tableZone").value = "Asosiy zal";
+      qs("#tableShape").value = "rect";
+      qs("#tableActive").checked = true;
+
+      await loadTables();
+      await loadOverview();
+    } catch (error) {
+      toast(error.message, "error");
+    }
+  });
+
+  qs("#adminTableReservationsBody")?.addEventListener("click", async (event) => {
+    const saveButton = event.target.closest(".reservation-save");
+    if (!saveButton) return;
+
+    const id = saveButton.dataset.id;
+    const status = qs(`.reservation-status[data-id='${id}']`)?.value;
+    const adminNote = qs(`.reservation-note[data-id='${id}']`)?.value || "";
+
+    try {
+      await api(`/api/admin/tables/reservations/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status, adminNote }),
+      });
+      toast("Rezervatsiya yangilandi.", "success");
+      await loadTableReservations();
+      await loadOverview();
+    } catch (error) {
+      toast(error.message, "error");
+    }
+  });
+
   qs("#orderStatusFilter")?.addEventListener("change", loadOrders);
   qs("#orderPaymentFilter")?.addEventListener("change", loadOrders);
+  qs("#tableReservationStatusFilter")?.addEventListener("change", loadTableReservations);
 
   loadAll();
 });

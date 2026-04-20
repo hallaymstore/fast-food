@@ -10,6 +10,8 @@ Premium fast-food platform (`Node.js + MongoDB + Cloudinary`) for small business
 - Admin card payment flow with screenshot upload
 - Payment verification by admin (`approve/reject`)
 - Full admin panel: users, menu, orders, delivery
+- Offline service: table reservation with admin approval
+- Admin table layout with draggable positioning and persistence
 - Cloudinary upload for screenshots/menu images (with local fallback)
 
 ## Run

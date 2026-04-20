@@ -81,9 +81,14 @@ a {
 }
 
 .kd-navbar {
+  background: rgba(255, 255, 255, 0.92);
   background: color-mix(in srgb, var(--bg), transparent 12%);
   border-bottom: 1px solid var(--surface-border);
   backdrop-filter: blur(14px);
+}
+
+body[data-theme="dark"] .kd-navbar {
+  background: rgba(16, 16, 16, 0.92);
 }
 
 .kd-brand {
@@ -211,6 +216,7 @@ a {
 
 .kd-card:hover {
   transform: translateY(-3px);
+  border-color: rgba(223, 32, 32, 0.45);
   border-color: color-mix(in srgb, var(--primary), transparent 40%);
 }
 
@@ -249,6 +255,7 @@ a {
 .kd-btn-primary {
   background: linear-gradient(120deg, var(--primary), var(--primary-strong));
   color: #fff;
+  border-color: rgba(170, 15, 15, 0.55);
   border-color: color-mix(in srgb, var(--primary), black 20%);
 }
 
@@ -288,6 +295,7 @@ a {
 .form-select {
   border-radius: 12px;
   border: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.6);
   background: color-mix(in srgb, var(--bg), var(--surface) 60%);
   color: var(--text);
 }
@@ -300,6 +308,7 @@ a {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px var(--ring);
   color: var(--text);
+  background: rgba(255, 255, 255, 0.7);
   background: color-mix(in srgb, var(--bg), var(--surface) 65%);
 }
 
@@ -337,6 +346,7 @@ a {
 .kd-stat-card {
   padding: 1.15rem;
   border-radius: 16px;
+  background: linear-gradient(145deg, var(--surface), rgba(255, 255, 255, 0.3));
   background: linear-gradient(145deg, var(--surface), color-mix(in srgb, var(--bg-soft), transparent 50%));
   border: 1px solid var(--surface-border);
 }
@@ -422,7 +432,8 @@ a {
 }
 
 .kd-badge.status-delivered,
-.kd-badge.status-approved {
+.kd-badge.status-approved,
+.kd-badge.status-completed {
   color: var(--success);
   border-color: rgba(40, 201, 133, 0.34);
   background: rgba(46, 192, 130, 0.15);
@@ -490,7 +501,154 @@ a {
   padding: 0.75rem;
   cursor: pointer;
   transition: 0.2s ease;
+  background: rgba(255, 255, 255, 0.62);
   background: color-mix(in srgb, var(--surface), transparent 20%);
+}
+
+.kd-feature-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.kd-feature-item {
+  border: 1px solid var(--surface-border);
+  border-radius: 14px;
+  padding: 0.9rem;
+  background: var(--surface);
+}
+
+.kd-feature-item i {
+  color: var(--primary);
+  font-size: 1.15rem;
+}
+
+.kd-timeline {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.kd-timeline-step {
+  border: 1px solid var(--surface-border);
+  border-radius: 16px;
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.kd-bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2200;
+  border-top: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.94);
+  background: color-mix(in srgb, var(--bg), transparent 6%);
+  backdrop-filter: blur(14px);
+  display: none;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.kd-bottom-link {
+  display: grid;
+  gap: 0.2rem;
+  text-align: center;
+  align-items: center;
+  justify-items: center;
+  padding: 0.58rem 0.2rem 0.46rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.kd-bottom-link i {
+  font-size: 0.95rem;
+}
+
+.kd-bottom-link.active {
+  color: var(--primary);
+}
+
+body[data-theme="dark"] .kd-bottom-nav {
+  background: rgba(16, 16, 16, 0.96);
+}
+
+.kd-table-map {
+  position: relative;
+  min-height: 360px;
+  border: 1px dashed var(--surface-border);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 90% 10%, rgba(255, 110, 110, 0.18), transparent 35%),
+    radial-gradient(circle at 10% 90%, rgba(255, 70, 70, 0.14), transparent 32%),
+    var(--surface);
+  overflow: hidden;
+}
+
+.kd-table-spot {
+  position: absolute;
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-size: 0.76rem;
+  font-weight: 800;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.kd-table-spot.round {
+  border-radius: 999px;
+}
+
+.kd-table-spot:hover {
+  transform: translateY(-1px);
+}
+
+.kd-table-spot.available {
+  background: rgba(40, 201, 133, 0.2);
+  border-color: rgba(40, 201, 133, 0.45);
+  color: #0a734b;
+}
+
+.kd-table-spot.busy {
+  background: rgba(255, 80, 80, 0.2);
+  border-color: rgba(255, 90, 90, 0.45);
+  color: #9a1f1f;
+}
+
+.kd-table-spot.selected {
+  box-shadow: 0 0 0 4px var(--ring);
+}
+
+.kd-table-spot.dragging {
+  cursor: grabbing;
+  z-index: 5;
+}
+
+.kd-map-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.kd-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-right: 0.3rem;
+}
+
+.kd-status-dot.green {
+  background: #1fa069;
+}
+
+.kd-status-dot.red {
+  background: #da4343;
 }
 
 .kd-order-option.active,
@@ -638,6 +796,22 @@ a {
 
   .kd-table {
     min-width: 640px;
+  }
+
+  body {
+    padding-bottom: 74px;
+  }
+
+  .kd-bottom-nav {
+    display: grid;
+  }
+
+  .kd-feature-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kd-timeline {
+    grid-template-columns: 1fr;
   }
 }
 

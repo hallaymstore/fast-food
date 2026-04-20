@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kardeshler Doner | Premium Fast-Food Platform</title>
-    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css" />
-    <link rel="stylesheet" href="/assets/css/app.css" />
+    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css?v=2.2.0" onerror="this.onerror=null;this.href='/foodwagon-v1.0.0/public/assets/css/theme.css?v=2.2.0';" />
+    <link rel="stylesheet" href="/assets/css/app.css?v=2.2.0" />
   </head>
   <body class="kd-layout" data-page="index">
     <nav class="navbar navbar-expand-lg fixed-top kd-navbar">
@@ -22,6 +22,7 @@
             <li class="nav-item"><a class="nav-link kd-nav-link" href="/index.html">Bosh sahifa</a></li>
             <li class="nav-item"><a class="nav-link kd-nav-link" href="/menu.html">Menu</a></li>
             <li class="nav-item"><a class="nav-link kd-nav-link" href="/order.html">Buyurtma <span class="badge bg-danger cart-count d-none"></span></a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/tables.html">Stol bron</a></li>
             <li class="nav-item"><a class="nav-link kd-nav-link" href="/payment.html">To'lov</a></li>
             <li class="nav-item"><a class="nav-link kd-nav-link" href="/dashboard.html">Kabinet</a></li>
             <li class="nav-item"><a class="nav-link kd-nav-link" href="/profile.html">Profil</a></li>
@@ -36,12 +37,13 @@
       <section class="kd-hero kd-animated mb-4">
         <div class="row align-items-center g-4">
           <div class="col-lg-7">
-            <span class="kd-pill mb-3 d-inline-block">foodwagon-v1.0.0 asosida premium versiya</span>
+            <span class="kd-pill mb-3 d-inline-block">foodwagon-v1.0.0 premium integrated</span>
             <h1 class="mb-2" id="brandName">Kardeshler Doner</h1>
             <p class="mb-3" id="brandSlogan">Tez yetkazib berish, premium ta'm, zamonaviy servis</p>
             <div class="d-flex flex-wrap gap-2 mb-3">
               <button class="kd-btn-primary" id="ctaToMenu" type="button">Menu ko'rish</button>
-              <button class="kd-btn-outline" id="ctaToOrder" type="button">Hozir buyurtma berish</button>
+              <button class="kd-btn-outline" id="ctaToOrder" type="button">Hozir buyurtma</button>
+              <a class="kd-btn-ghost" href="/tables.html">Stol bron qilish</a>
             </div>
             <form class="row g-2 align-items-center" onsubmit="return false;">
               <div class="col-md-8">
@@ -60,29 +62,54 @@
       </section>
 
       <section class="mb-4">
-        <div class="kd-section-title">
-          <h2>Nima uchun Kardeshler?</h2>
+        <div class="kd-feature-strip">
+          <article class="kd-feature-item">
+            <i class="fas fa-bolt"></i>
+            <h5 class="mb-1 mt-2">Tezkor buyurtma</h5>
+            <p class="kd-meta mb-0">Menu tanlang, 1 klikda savatga qo'shing, to'lovni screenshot bilan tasdiqlang.</p>
+          </article>
+          <article class="kd-feature-item">
+            <i class="fas fa-shield-halved"></i>
+            <h5 class="mb-1 mt-2">To'liq nazorat</h5>
+            <p class="kd-meta mb-0">Admin panelda users, menu, orders, delivery va offline stollar nazorati.</p>
+          </article>
+          <article class="kd-feature-item">
+            <i class="fas fa-cloud-arrow-up"></i>
+            <h5 class="mb-1 mt-2">Cloudinary media</h5>
+            <p class="kd-meta mb-0">To'lov screenshotlari va rasmlar xavfsiz saqlanadi.</p>
+          </article>
+          <article class="kd-feature-item">
+            <i class="fas fa-moon"></i>
+            <h5 class="mb-1 mt-2">Day/Night mode</h5>
+            <p class="kd-meta mb-0">Kunduzgi va tungi premium temalar barcha qurilmalarda mos.</p>
+          </article>
         </div>
-        <div class="kd-grid">
+      </section>
+
+      <section class="mb-4">
+        <div class="kd-section-title">
+          <h2>Nega bizni tanlashadi?</h2>
+        </div>
+        <div class="kd-grid" id="landingStatsGrid">
           <div class="kd-stat-card">
-            <p>Express xizmat</p>
+            <p>Faol menu item</p>
+            <h4 id="landingMenuCount">0</h4>
+            <small class="kd-meta">Doimiy yangilanadigan taomlar ro'yxati.</small>
+          </div>
+          <div class="kd-stat-card">
+            <p>Express yetkazish</p>
             <h4>20-35 daq</h4>
-            <small class="kd-meta">Ichki delivery jamoasi bilan tez yetkazib berish.</small>
+            <small class="kd-meta">Ichki delivery xizmati bilan tezkor yetkazib berish.</small>
           </div>
           <div class="kd-stat-card">
-            <p>To'lov xavfsizligi</p>
-            <h4>Screenshot</h4>
-            <small class="kd-meta">Admin karta orqali to'lov va 100% tasdiqlash nazorati.</small>
+            <p>Offline stol bron</p>
+            <h4 id="landingTableCount">0</h4>
+            <small class="kd-meta">Stollar holati real vaqtda ko'rsatiladi.</small>
           </div>
           <div class="kd-stat-card">
-            <p>Admin nazorat</p>
-            <h4>To'liq</h4>
-            <small class="kd-meta">Users, menu, orders, delivery hammasi bitta panelda.</small>
-          </div>
-          <div class="kd-stat-card">
-            <p>Cloudinary</p>
-            <h4>Media API</h4>
-            <small class="kd-meta">Screenshot va menu rasmlarini cloud orqali boshqarish.</small>
+            <p>Qo'llab-quvvatlash</p>
+            <h4>24/7</h4>
+            <small class="kd-meta">Telegram va telefon orqali yordam.</small>
           </div>
         </div>
       </section>
@@ -95,15 +122,69 @@
         <div class="kd-grid" id="featuredMenuGrid"></div>
       </section>
 
-      <section class="kd-panel p-4 mb-4" style="background:url('/foodwagon-v1.0.0/public/assets/img/gallery/cta-two-bg.png') center/cover no-repeat; border-color: rgba(255,99,99,.35);">
-        <div class="row align-items-center g-3">
-          <div class="col-md-8 text-white">
-            <h3 class="mb-1">Admin kartaga to'lang, screenshot yuklang, tez tasdiq oling.</h3>
-            <p class="mb-0">Buyurtmangiz tasdiqlangach tayyorlash va delivery bosqichlari realtime status bilan ko'rinadi.</p>
+      <section class="mb-4 kd-panel p-3 p-md-4">
+        <div class="kd-section-title mb-3">
+          <h2>Buyurtma jarayoni</h2>
+        </div>
+        <div class="kd-timeline">
+          <article class="kd-timeline-step">
+            <span class="kd-pill">01</span>
+            <h5 class="mt-2 mb-1">Menu tanlang</h5>
+            <p class="kd-meta mb-0">Taomlarni kategoriya bo'yicha tanlang va savatga qo'shing.</p>
+          </article>
+          <article class="kd-timeline-step">
+            <span class="kd-pill">02</span>
+            <h5 class="mt-2 mb-1">Login/Register</h5>
+            <p class="kd-meta mb-0">Buyurtma berishda tizim login/register so'raydi va jarayonni davom ettiradi.</p>
+          </article>
+          <article class="kd-timeline-step">
+            <span class="kd-pill">03</span>
+            <h5 class="mt-2 mb-1">To'lov va tasdiq</h5>
+            <p class="kd-meta mb-0">Admin karta orqali to'lab screenshot yuborasiz, admin tasdiqlaydi.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="mb-4">
+        <div class="row g-3">
+          <div class="col-lg-7">
+            <div class="kd-panel p-3 p-md-4 h-100" style="background:url('/foodwagon-v1.0.0/public/assets/img/gallery/cta-two-bg.png') center/cover no-repeat; border-color: rgba(255,99,99,.35);">
+              <h3 class="text-white mb-2">Admin kartaga to'lang, screenshot yuklang, tez tasdiq oling.</h3>
+              <p class="text-white mb-3">Buyurtmangiz tasdiqlangach tayyorlash va delivery bosqichlari realtime status bilan ko'rinadi.</p>
+              <a class="kd-btn-primary" href="/payment.html">To'lov bo'limiga o'tish</a>
+            </div>
           </div>
-          <div class="col-md-4 d-grid">
-            <a class="kd-btn-primary text-center" href="/payment.html">To'lov bo'limiga o'tish</a>
+          <div class="col-lg-5">
+            <div class="kd-panel p-3 p-md-4 h-100">
+              <h4 class="mb-2">Offline xizmat ham mavjud</h4>
+              <p class="kd-meta">Restoranga kelishdan oldin stol band qiling: bo'sh stollar yashil, bandlari qizil ko'rsatiladi.</p>
+              <a class="kd-btn-outline" href="/tables.html">Stol bron sahifasiga o'tish</a>
+            </div>
           </div>
+        </div>
+      </section>
+
+      <section class="kd-panel p-3 p-md-4 mb-4">
+        <div class="kd-section-title mb-2">
+          <h2>Mijozlar fikri</h2>
+        </div>
+        <div class="kd-grid">
+          <article class="kd-stat-card">
+            <p>"Buyurtma jarayoni juda sodda, to'lov tasdiqi ham tez bo'ldi."</p>
+            <small class="kd-meta">- Diyor, Toshkent</small>
+          </article>
+          <article class="kd-stat-card">
+            <p>"Stol bron funksiyasi juda qulay, restoranga borganimizda joy tayyor edi."</p>
+            <small class="kd-meta">- Maftuna, Chilonzor</small>
+          </article>
+          <article class="kd-stat-card">
+            <p>"Admin panel orqali hammasi nazoratda, biznes uchun zo'r yechim."</p>
+            <small class="kd-meta">- Komil, Manager</small>
+          </article>
+          <article class="kd-stat-card">
+            <p>"Mobil versiya ham juda qulay ishlaydi, pastki menu zo'r."</p>
+            <small class="kd-meta">- Shahzod, Yunusobod</small>
+          </article>
         </div>
       </section>
     </main>
@@ -111,14 +192,15 @@
     <footer class="container py-3 kd-footer">
       <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
         <span>© 2026 Kardeshler Doner. Barcha huquqlar himoyalangan.</span>
-        <span>Node.js + MongoDB + Cloudinary + Premium UI</span>
+        <span>Node.js + MongoDB + Cloudinary + Premium UI + Offline Booking</span>
       </div>
     </footer>
 
     <script src="/foodwagon-v1.0.0/public/vendors/@popperjs/popper.min.js"></script>
     <script src="/foodwagon-v1.0.0/public/vendors/bootstrap/bootstrap.min.js"></script>
     <script src="/foodwagon-v1.0.0/public/vendors/fontawesome/all.min.js"></script>
-    <script src="/assets/js/app.js"></script>
-    <script src="/assets/js/landing.js"></script>
+    <script src="/assets/js/app.js?v=2.2.0"></script>
+    <script src="/assets/js/landing.js?v=2.2.0"></script>
   </body>
 </html>
+

@@ -46,7 +46,24 @@ const upload = multer({
 app.use(cors());
 app.use(express.json({ limit: "3mb" }));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(
+  express.static(path.join(__dirname, "public"), {
+    etag: true,
+    maxAge: "7d",
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith(".html")) {
+        res.setHeader("Cache-Control", "no-store");
+        return;
+      }
+      if (
+        filePath.includes(`${path.sep}assets${path.sep}`) ||
+        filePath.includes(`${path.sep}foodwagon-v1.0.0${path.sep}`)
+      ) {
+        res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+      }
+    },
+  }),
+);
 
 const adminCardInfo = {
   cardNumber: process.env.ADMIN_CARD_NUMBER || "8600 1234 5678 9012",
@@ -170,9 +187,56 @@ const orderSchema = new mongoose.Schema(
 
 orderSchema.index({ createdAt: -1 });
 
+const tableSpotSchema = new mongoose.Schema(
+  {
+    number: { type: Number, required: true, unique: true, min: 1 },
+    label: { type: String, default: "", trim: true },
+    capacity: { type: Number, default: 4, min: 1 },
+    zone: { type: String, default: "Asosiy zal", trim: true },
+    x: { type: Number, default: 0.05, min: 0, max: 0.95 },
+    y: { type: Number, default: 0.08, min: 0, max: 0.95 },
+    width: { type: Number, default: 0.18, min: 0.08, max: 0.4 },
+    height: { type: Number, default: 0.18, min: 0.08, max: 0.4 },
+    shape: { type: String, enum: ["rect", "round"], default: "rect" },
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true },
+);
+
+const tableReservationSchema = new mongoose.Schema(
+  {
+    reservationCode: { type: String, required: true, unique: true, index: true },
+    table: { type: objectId, ref: "TableSpot", required: true, index: true },
+    user: { type: objectId, ref: "User", required: true, index: true },
+    customerSnapshot: {
+      fullName: { type: String, required: true },
+      phone: { type: String, required: true },
+    },
+    visitDate: { type: String, required: true, trim: true }, // YYYY-MM-DD
+    visitTime: { type: String, required: true, trim: true }, // HH:mm
+    guestCount: { type: Number, required: true, min: 1, max: 20 },
+    note: { type: String, default: "", trim: true },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected", "cancelled", "completed"],
+      default: "pending",
+      index: true,
+    },
+    adminNote: { type: String, default: "", trim: true },
+    reviewedBy: { type: objectId, ref: "User" },
+    reviewedAt: { type: Date },
+  },
+  { timestamps: true },
+);
+
+tableReservationSchema.index({ table: 1, visitDate: 1, visitTime: 1, status: 1 });
+tableReservationSchema.index({ createdAt: -1 });
+
 const User = mongoose.model("User", userSchema);
 const MenuItem = mongoose.model("MenuItem", menuItemSchema);
 const Order = mongoose.model("Order", orderSchema);
+const TableSpot = mongoose.model("TableSpot", tableSpotSchema);
+const TableReservation = mongoose.model("TableReservation", tableReservationSchema);
 
 const orderStatuses = [
   "new",
@@ -207,6 +271,37 @@ function generateOrderNumber() {
   const shortTs = Date.now().toString().slice(-8);
   const rand = Math.floor(Math.random() * 900 + 100);
   return `KD-${shortTs}${rand}`;
+}
+
+function generateReservationCode() {
+  const shortTs = Date.now().toString().slice(-7);
+  const rand = Math.floor(Math.random() * 900 + 100);
+  return `TB-${shortTs}${rand}`;
+}
+
+function normalizePhone(phone) {
+  return String(phone || "")
+    .trim()
+    .replace(/[^\d+]/g, "");
+}
+
+function normalizeVisitDate(value) {
+  if (!value) {
+    return new Date().toISOString().slice(0, 10);
+  }
+  const clean = String(value).slice(0, 10);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) {
+    return clean;
+  }
+  return new Date().toISOString().slice(0, 10);
+}
+
+function normalizeVisitTime(value) {
+  const clean = String(value || "19:00").slice(0, 5);
+  if (/^\d{2}:\d{2}$/.test(clean)) {
+    return clean;
+  }
+  return "19:00";
 }
 
 function parseBoolean(value, fallback = false) {
@@ -338,14 +433,34 @@ app.get("/api/settings", (req, res) => {
       { key: "internal", name: "Kardeshler Express", eta: "20-35 daqiqa" },
       { key: "partner", name: "Hamkor kuryer", eta: "30-45 daqiqa" },
     ],
+    offlineService: {
+      enabled: true,
+      workingHours: "10:00 - 23:00",
+      reservationSlots: [
+        "10:00",
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+      ],
+    },
   });
 });
 
 app.post("/api/auth/register", async (req, res, next) => {
   try {
     const { fullName, phone, password, email, address } = req.body || {};
+    const normalizedPhone = normalizePhone(phone);
 
-    if (!fullName || !phone || !password) {
+    if (!fullName || !normalizedPhone || !password) {
       return res
         .status(400)
         .json({ message: "Ism, telefon va parol majburiy." });
@@ -355,7 +470,7 @@ app.post("/api/auth/register", async (req, res, next) => {
       return res.status(400).json({ message: "Parol kamida 6 belgidan iborat." });
     }
 
-    const existing = await User.findOne({ phone: String(phone).trim() });
+    const existing = await User.findOne({ phone: normalizedPhone });
     if (existing) {
       return res
         .status(409)
@@ -365,7 +480,7 @@ app.post("/api/auth/register", async (req, res, next) => {
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.create({
       fullName: String(fullName).trim(),
-      phone: String(phone).trim(),
+      phone: normalizedPhone,
       passwordHash,
       email: email ? String(email).trim().toLowerCase() : "",
       address: address ? String(address).trim() : "",
@@ -384,12 +499,13 @@ app.post("/api/auth/register", async (req, res, next) => {
 app.post("/api/auth/login", async (req, res, next) => {
   try {
     const { phone, password } = req.body || {};
+    const normalizedPhone = normalizePhone(phone);
 
-    if (!phone || !password) {
+    if (!normalizedPhone || !password) {
       return res.status(400).json({ message: "Telefon va parol kiriting." });
     }
 
-    const user = await User.findOne({ phone: String(phone).trim() });
+    const user = await User.findOne({ phone: normalizedPhone });
     if (!user || !user.isActive) {
       return res.status(401).json({ message: "Login yoki parol noto'g'ri." });
     }
@@ -607,6 +723,116 @@ app.get("/api/orders/:id", authRequired, async (req, res, next) => {
   }
 });
 
+async function getBusyTableMap(visitDate, visitTime) {
+  const busyReservations = await TableReservation.find({
+    visitDate,
+    visitTime,
+    status: { $in: ["pending", "approved"] },
+  }).select("table status");
+
+  return busyReservations.reduce((acc, reservation) => {
+    acc[String(reservation.table)] = {
+      status: reservation.status,
+      reservationId: reservation._id,
+    };
+    return acc;
+  }, {});
+}
+
+app.get("/api/tables", async (req, res, next) => {
+  try {
+    const visitDate = normalizeVisitDate(req.query.date);
+    const visitTime = normalizeVisitTime(req.query.time);
+
+    const [tables, busyMap] = await Promise.all([
+      TableSpot.find({ isActive: true }).sort({ number: 1 }),
+      getBusyTableMap(visitDate, visitTime),
+    ]);
+
+    const result = tables.map((table) => {
+      const busy = busyMap[String(table._id)];
+      return {
+        ...table.toObject(),
+        occupancyStatus: busy ? "busy" : "available",
+        occupancyDetail: busy || null,
+      };
+    });
+
+    res.json({
+      visitDate,
+      visitTime,
+      tables: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/tables/reservations", authRequired, async (req, res, next) => {
+  try {
+    const { tableId, visitDate, visitTime, guestCount, note } = req.body || {};
+    if (!tableId) {
+      return res.status(400).json({ message: "Stolni tanlang." });
+    }
+
+    const normalizedDate = normalizeVisitDate(visitDate);
+    const normalizedTime = normalizeVisitTime(visitTime);
+    const guests = Math.max(1, Math.min(Number(guestCount) || 1, 20));
+
+    const table = await TableSpot.findById(tableId);
+    if (!table || !table.isActive) {
+      return res.status(404).json({ message: "Stol topilmadi." });
+    }
+    if (guests > Number(table.capacity || 4)) {
+      return res.status(400).json({
+        message: `Tanlangan stol maksimal ${table.capacity} kishiga mo'ljallangan.`,
+      });
+    }
+
+    const alreadyBooked = await TableReservation.findOne({
+      table: table._id,
+      visitDate: normalizedDate,
+      visitTime: normalizedTime,
+      status: { $in: ["pending", "approved"] },
+    });
+    if (alreadyBooked) {
+      return res
+        .status(409)
+        .json({ message: "Ushbu vaqt uchun stol allaqachon band qilingan." });
+    }
+
+    const reservation = await TableReservation.create({
+      reservationCode: generateReservationCode(),
+      table: table._id,
+      user: req.user._id,
+      customerSnapshot: {
+        fullName: req.user.fullName,
+        phone: req.user.phone,
+      },
+      visitDate: normalizedDate,
+      visitTime: normalizedTime,
+      guestCount: guests,
+      note: note ? String(note).trim() : "",
+      status: "pending",
+    });
+
+    res.status(201).json(reservation);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/tables/my-reservations", authRequired, async (req, res, next) => {
+  try {
+    const reservations = await TableReservation.find({ user: req.user._id })
+      .sort({ createdAt: -1 })
+      .populate("table", "number label capacity zone");
+    res.json(reservations);
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post(
   "/api/orders/:id/payment-proof",
   authRequired,
@@ -693,7 +919,7 @@ app.get("/api/dashboard/me", authRequired, async (req, res, next) => {
 
 app.get("/api/admin/overview", authRequired, adminRequired, async (req, res, next) => {
   try {
-    const [users, menuItems, orders, pendingPayments, revenueAgg] = await Promise.all([
+    const [users, menuItems, orders, pendingPayments, revenueAgg, tableSpots, pendingTableReservations] = await Promise.all([
       User.countDocuments(),
       MenuItem.countDocuments(),
       Order.countDocuments(),
@@ -702,6 +928,8 @@ app.get("/api/admin/overview", authRequired, adminRequired, async (req, res, nex
         { $match: { status: "delivered", "payment.status": "approved" } },
         { $group: { _id: null, totalRevenue: { $sum: "$total" } } },
       ]),
+      TableSpot.countDocuments({ isActive: true }),
+      TableReservation.countDocuments({ status: "pending" }),
     ]);
 
     const groupedStatuses = await Order.aggregate([
@@ -722,6 +950,8 @@ app.get("/api/admin/overview", authRequired, adminRequired, async (req, res, nex
       pendingPayments,
       totalRevenue: revenueAgg[0]?.totalRevenue || 0,
       statusSummary,
+      tableSpots,
+      pendingTableReservations,
     });
   } catch (error) {
     next(error);
@@ -768,6 +998,232 @@ app.patch("/api/admin/users/:id", authRequired, adminRequired, async (req, res, 
     next(error);
   }
 });
+
+app.get("/api/admin/tables", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const tables = await TableSpot.find().sort({ number: 1 });
+    res.json(tables);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/admin/tables", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const payload = req.body || {};
+    if (typeof payload.number === "undefined") {
+      return res.status(400).json({ message: "Stol raqami majburiy." });
+    }
+    const resolvedNumber = Math.max(1, Number(payload.number) || 1);
+    const numberExists = await TableSpot.findOne({ number: resolvedNumber });
+    if (numberExists) {
+      return res.status(409).json({ message: "Bu raqamli stol allaqachon mavjud." });
+    }
+    const table = await TableSpot.create({
+      number: resolvedNumber,
+      label: payload.label ? String(payload.label).trim() : "",
+      capacity: Math.max(1, Number(payload.capacity) || 4),
+      zone: payload.zone ? String(payload.zone).trim() : "Asosiy zal",
+      x: Math.max(0, Math.min(Number(payload.x) || 0.05, 0.95)),
+      y: Math.max(0, Math.min(Number(payload.y) || 0.08, 0.95)),
+      width: Math.max(0.08, Math.min(Number(payload.width) || 0.18, 0.4)),
+      height: Math.max(0.08, Math.min(Number(payload.height) || 0.18, 0.4)),
+      shape: payload.shape === "round" ? "round" : "rect",
+      isActive: typeof payload.isActive === "undefined" ? true : parseBoolean(payload.isActive, true),
+    });
+    res.status(201).json(table);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/admin/tables/:id", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const table = await TableSpot.findById(req.params.id);
+    if (!table) {
+      return res.status(404).json({ message: "Stol topilmadi." });
+    }
+    const payload = req.body || {};
+
+    if (typeof payload.number !== "undefined") {
+      const resolvedNumber = Math.max(1, Number(payload.number) || table.number);
+      const duplicate = await TableSpot.findOne({
+        _id: { $ne: table._id },
+        number: resolvedNumber,
+      });
+      if (duplicate) {
+        return res.status(409).json({ message: "Bu raqam boshqa stolga biriktirilgan." });
+      }
+      table.number = resolvedNumber;
+    }
+    if (typeof payload.label === "string") table.label = payload.label.trim();
+    if (typeof payload.capacity !== "undefined") {
+      table.capacity = Math.max(1, Number(payload.capacity) || table.capacity);
+    }
+    if (typeof payload.zone === "string") table.zone = payload.zone.trim();
+    if (typeof payload.x !== "undefined") {
+      table.x = Math.max(0, Math.min(Number(payload.x) || table.x, 0.95));
+    }
+    if (typeof payload.y !== "undefined") {
+      table.y = Math.max(0, Math.min(Number(payload.y) || table.y, 0.95));
+    }
+    if (typeof payload.width !== "undefined") {
+      table.width = Math.max(0.08, Math.min(Number(payload.width) || table.width, 0.4));
+    }
+    if (typeof payload.height !== "undefined") {
+      table.height = Math.max(0.08, Math.min(Number(payload.height) || table.height, 0.4));
+    }
+    if (typeof payload.shape === "string") {
+      table.shape = payload.shape === "round" ? "round" : "rect";
+    }
+    if (typeof payload.isActive !== "undefined") {
+      table.isActive = parseBoolean(payload.isActive, true);
+    }
+
+    await table.save();
+    res.json(table);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.patch(
+  "/api/admin/tables/layout",
+  authRequired,
+  adminRequired,
+  async (req, res, next) => {
+    try {
+      const { tables } = req.body || {};
+      if (!Array.isArray(tables)) {
+        return res.status(400).json({ message: "`tables` massiv bo'lishi kerak." });
+      }
+
+      const bulkOps = [];
+      for (const item of tables) {
+        if (!item?.id) continue;
+        bulkOps.push({
+          updateOne: {
+            filter: { _id: item.id },
+            update: {
+              $set: {
+                x: Math.max(0, Math.min(Number(item.x) || 0, 0.95)),
+                y: Math.max(0, Math.min(Number(item.y) || 0, 0.95)),
+                width: Math.max(0.08, Math.min(Number(item.width) || 0.18, 0.4)),
+                height: Math.max(0.08, Math.min(Number(item.height) || 0.18, 0.4)),
+              },
+            },
+          },
+        });
+      }
+
+      if (bulkOps.length) {
+        await TableSpot.bulkWrite(bulkOps);
+      }
+
+      const refreshed = await TableSpot.find().sort({ number: 1 });
+      res.json(refreshed);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+app.delete("/api/admin/tables/:id", authRequired, adminRequired, async (req, res, next) => {
+  try {
+    const table = await TableSpot.findById(req.params.id);
+    if (!table) {
+      return res.status(404).json({ message: "Stol topilmadi." });
+    }
+
+    const lockedReservation = await TableReservation.findOne({
+      table: table._id,
+      status: { $in: ["pending", "approved"] },
+    });
+    if (lockedReservation) {
+      return res.status(400).json({
+        message: "Bu stol uchun faol rezervatsiya bor. Avval rezervatsiyani yakunlang.",
+      });
+    }
+
+    await table.deleteOne();
+    res.json({ ok: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get(
+  "/api/admin/tables/reservations",
+  authRequired,
+  adminRequired,
+  async (req, res, next) => {
+    try {
+      const filter = {};
+      if (req.query.status) {
+        filter.status = req.query.status;
+      }
+      const reservations = await TableReservation.find(filter)
+        .sort({ createdAt: -1 })
+        .populate("table", "number label capacity zone")
+        .populate("user", "fullName phone")
+        .populate("reviewedBy", "fullName");
+      res.json(reservations);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+app.patch(
+  "/api/admin/tables/reservations/:id",
+  authRequired,
+  adminRequired,
+  async (req, res, next) => {
+    try {
+      const reservation = await TableReservation.findById(req.params.id);
+      if (!reservation) {
+        return res.status(404).json({ message: "Rezervatsiya topilmadi." });
+      }
+
+      const { status, adminNote } = req.body || {};
+      if (
+        !["pending", "approved", "rejected", "cancelled", "completed"].includes(status)
+      ) {
+        return res.status(400).json({ message: "Noto'g'ri status qiymati." });
+      }
+
+      if (status === "approved") {
+        const conflict = await TableReservation.findOne({
+          _id: { $ne: reservation._id },
+          table: reservation.table,
+          visitDate: reservation.visitDate,
+          visitTime: reservation.visitTime,
+          status: { $in: ["pending", "approved"] },
+        });
+        if (conflict) {
+          return res.status(409).json({
+            message: "Bu stol va vaqt oralig'i boshqa rezervatsiya bilan band.",
+          });
+        }
+      }
+
+      reservation.status = status;
+      reservation.adminNote = adminNote ? String(adminNote).trim() : "";
+      reservation.reviewedBy = req.user._id;
+      reservation.reviewedAt = new Date();
+      await reservation.save();
+
+      const populated = await TableReservation.findById(reservation._id)
+        .populate("table", "number label capacity zone")
+        .populate("user", "fullName phone")
+        .populate("reviewedBy", "fullName");
+
+      res.json(populated);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 app.get("/api/admin/orders", authRequired, adminRequired, async (req, res, next) => {
   try {
@@ -1020,6 +1476,7 @@ app.delete(
 );
 
 app.get(["/", "/index", "/index.html"], (req, res) => {
+  res.set("Cache-Control", "no-store");
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
@@ -1027,6 +1484,7 @@ const standalonePages = [
   "menu",
   "order",
   "payment",
+  "tables",
   "dashboard",
   "profile",
   "history",
@@ -1034,6 +1492,7 @@ const standalonePages = [
 ];
 for (const page of standalonePages) {
   app.get([`/${page}`, `/${page}.html`], (req, res) => {
+    res.set("Cache-Control", "no-store");
     res.sendFile(path.join(__dirname, "public", `${page}.html`));
   });
 }
@@ -1057,7 +1516,7 @@ app.use((error, req, res, next) => {
 });
 
 async function seedInitialData() {
-  const adminPhone = process.env.ADMIN_PHONE || "+998900000000";
+  const adminPhone = normalizePhone(process.env.ADMIN_PHONE || "+998900000000");
   const adminPassword = process.env.ADMIN_PASSWORD || "admin12345";
   const adminName = process.env.ADMIN_NAME || "Kardeshler Super Admin";
 
@@ -1144,6 +1603,35 @@ async function seedInitialData() {
     ];
     await MenuItem.insertMany(defaultMenu);
     console.log(`Seed menu created: ${defaultMenu.length} items`);
+  }
+
+  const tableCount = await TableSpot.countDocuments();
+  if (tableCount === 0) {
+    const generatedTables = [];
+    const totalRows = 2;
+    const perRow = 10;
+    let number = 1;
+
+    for (let row = 0; row < totalRows; row += 1) {
+      for (let col = 0; col < perRow; col += 1) {
+        generatedTables.push({
+          number,
+          label: `Stol ${number}`,
+          capacity: col % 3 === 0 ? 6 : 4,
+          zone: row === 0 ? "Asosiy zal" : "Family zona",
+          x: 0.03 + col * 0.095,
+          y: 0.12 + row * 0.36,
+          width: 0.085,
+          height: 0.18,
+          shape: col % 2 === 0 ? "rect" : "round",
+          isActive: true,
+        });
+        number += 1;
+      }
+    }
+
+    await TableSpot.insertMany(generatedTables);
+    console.log(`Seed tables created: ${generatedTables.length} spots`);
   }
 }
 

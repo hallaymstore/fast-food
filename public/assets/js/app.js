@@ -3,6 +3,7 @@
     token: "kd_token",
     cart: "kd_cart",
     theme: "kd_theme",
+    authReturnTo: "kd_auth_return_to",
   };
 
   const STATUS_LABELS = {
@@ -16,10 +17,12 @@
     pending: "Tekshiruvda",
     approved: "Tasdiqlandi",
     rejected: "Rad etildi",
+    completed: "Yakunlandi",
   };
 
   const state = {
     currentUser: null,
+    pendingAuthResolvers: [],
   };
 
   function qs(selector, root = document) {
@@ -71,13 +74,30 @@
       return;
     }
 
-    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDark =
+      window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
     setTheme(prefersDark ? "dark" : "light");
   }
 
   function toggleTheme() {
     const current = document.body.getAttribute("data-theme") || "light";
     setTheme(current === "dark" ? "light" : "dark");
+  }
+
+  function parseQuery() {
+    return new URLSearchParams(window.location.search);
+  }
+
+  function normalizePath(pathValue) {
+    if (!pathValue) return "/index.html";
+    if (pathValue.startsWith("http")) return "/index.html";
+    return pathValue.startsWith("/") ? pathValue : `/${pathValue}`;
+  }
+
+  function resolvePendingAuth(success) {
+    const pending = [...state.pendingAuthResolvers];
+    state.pendingAuthResolvers = [];
+    pending.forEach((resolver) => resolver(Boolean(success)));
   }
 
   async function api(path, options = {}, { allowUnauthorized = false } = {}) {
@@ -200,7 +220,9 @@
   }
 
   function badgeHtml(status) {
-    return `<span class="kd-badge status-${escapeHtml(status)}">${escapeHtml(statusText(status))}</span>`;
+    return `<span class="kd-badge status-${escapeHtml(status)}">${escapeHtml(
+      statusText(status),
+    )}</span>`;
   }
 
   function ensureToastWrap() {
@@ -227,6 +249,37 @@
     }, 3200);
   }
 
+  function stabilizeStyles() {
+    const head = document.head;
+    if (!head) return;
+
+    const themeExists = qsa("link[rel='stylesheet']").some(
+      (link) =>
+        link.href.includes("/foodwagon-v1.0.0/public/assets/css/theme.min.css") ||
+        link.href.includes("/foodwagon-v1.0.0/public/assets/css/theme.css"),
+    );
+    const appExists = qsa("link[rel='stylesheet']").some((link) =>
+      link.href.includes("/assets/css/app.css"),
+    );
+
+    if (!themeExists) {
+      const theme = document.createElement("link");
+      theme.rel = "stylesheet";
+      theme.href = `/foodwagon-v1.0.0/public/assets/css/theme.min.css?v=${Date.now()}`;
+      theme.onerror = () => {
+        theme.href = `/foodwagon-v1.0.0/public/assets/css/theme.css?v=${Date.now()}`;
+      };
+      head.appendChild(theme);
+    }
+
+    if (!appExists) {
+      const appCss = document.createElement("link");
+      appCss.rel = "stylesheet";
+      appCss.href = `/assets/css/app.css?v=${Date.now()}`;
+      head.appendChild(appCss);
+    }
+  }
+
   function initAuthModal() {
     if (qs("#authModal")) return;
 
@@ -248,7 +301,7 @@
               <div class="tab-content">
                 <div class="tab-pane fade show active" id="loginPane">
                   <form id="loginForm" class="d-grid gap-2">
-                    <input class="form-control" name="phone" placeholder="Telefon" required>
+                    <input class="form-control" name="phone" placeholder="Telefon raqam" required>
                     <input class="form-control" type="password" name="password" placeholder="Parol" required>
                     <button class="kd-btn-primary" type="submit">Kirish</button>
                   </form>
@@ -256,16 +309,12 @@
                 <div class="tab-pane fade" id="registerPane">
                   <form id="registerForm" class="d-grid gap-2">
                     <input class="form-control" name="fullName" placeholder="Ism familiya" required>
-                    <input class="form-control" name="phone" placeholder="Telefon" required>
-                    <input class="form-control" name="email" type="email" placeholder="Email (ixtiyoriy)">
-                    <input class="form-control" name="address" placeholder="Manzil">
+                    <input class="form-control" name="phone" placeholder="Telefon raqam" required>
+                    <input class="form-control" name="address" placeholder="Manzil (ixtiyoriy)">
                     <input class="form-control" type="password" name="password" placeholder="Parol (kamida 6 belgi)" required>
-                    <button class="kd-btn-primary" type="submit">Akkaunt yaratish</button>
+                    <button class="kd-btn-primary" type="submit">Ro'yxatdan o'tish</button>
                   </form>
                 </div>
-              </div>
-              <div class="small text-muted mt-3">
-                Admin demo login: <code>${escapeHtml(window.__ADMIN_PHONE__ || "+998900000000")}</code> / <code>${escapeHtml(window.__ADMIN_PASSWORD__ || "admin12345")}</code>
               </div>
             </div>
           </div>
@@ -273,6 +322,13 @@
       </div>
       `,
     );
+
+    const modalEl = qs("#authModal");
+    modalEl?.addEventListener("hidden.bs.modal", () => {
+      if (!state.currentUser) {
+        resolvePendingAuth(false);
+      }
+    });
 
     const loginForm = qs("#loginForm");
     const registerForm = qs("#registerForm");
@@ -290,13 +346,7 @@
           method: "POST",
           body: JSON.stringify(payload),
         });
-        setToken(data.token);
-        state.currentUser = data.user;
-        renderAuthArea();
-        const modal = window.bootstrap?.Modal.getOrCreateInstance(qs("#authModal"));
-        modal?.hide();
-        toast("Muvaffaqiyatli kirdingiz.", "success");
-        document.dispatchEvent(new Event("kd:user-updated"));
+        onAuthSucceeded(data, "Muvaffaqiyatli kirdingiz.");
       } catch (error) {
         toast(error.message, "error");
       }
@@ -308,7 +358,6 @@
       const payload = {
         fullName: String(formData.get("fullName") || "").trim(),
         phone: String(formData.get("phone") || "").trim(),
-        email: String(formData.get("email") || "").trim(),
         address: String(formData.get("address") || "").trim(),
         password: String(formData.get("password") || "").trim(),
       };
@@ -318,22 +367,58 @@
           method: "POST",
           body: JSON.stringify(payload),
         });
-        setToken(data.token);
-        state.currentUser = data.user;
-        renderAuthArea();
-        const modal = window.bootstrap?.Modal.getOrCreateInstance(qs("#authModal"));
-        modal?.hide();
-        toast("Akkaunt yaratildi.", "success");
-        document.dispatchEvent(new Event("kd:user-updated"));
+        onAuthSucceeded(data, "Akkaunt yaratildi.");
       } catch (error) {
         toast(error.message, "error");
       }
     });
   }
 
-  function openAuthModal() {
+  function getAuthModal() {
     initAuthModal();
-    const modal = window.bootstrap?.Modal.getOrCreateInstance(qs("#authModal"));
+    return window.bootstrap?.Modal.getOrCreateInstance(qs("#authModal"));
+  }
+
+  function redirectAfterAuthIfNeeded() {
+    const query = parseQuery();
+    const queryNext = query.get("next");
+    const storedNext = localStorage.getItem(STORAGE_KEYS.authReturnTo);
+    const next = normalizePath(queryNext || storedNext || "");
+
+    if (!next || next === "/index.html" || next === window.location.pathname + window.location.search) {
+      return false;
+    }
+
+    const isAuthEntryPage = query.get("auth") === "1" || window.location.pathname === "/index.html";
+    if (!isAuthEntryPage) {
+      return false;
+    }
+
+    localStorage.removeItem(STORAGE_KEYS.authReturnTo);
+    window.location.href = next;
+    return true;
+  }
+
+  function onAuthSucceeded(data, successMessage) {
+    setToken(data.token);
+    state.currentUser = data.user;
+    renderAuthArea();
+
+    const modal = getAuthModal();
+    modal?.hide();
+
+    toast(successMessage, "success");
+    document.dispatchEvent(new Event("kd:user-updated"));
+    resolvePendingAuth(true);
+
+    const redirected = redirectAfterAuthIfNeeded();
+    if (!redirected) {
+      localStorage.removeItem(STORAGE_KEYS.authReturnTo);
+    }
+  }
+
+  function openAuthModal() {
+    const modal = getAuthModal();
     modal?.show();
   }
 
@@ -377,7 +462,7 @@
     mount.innerHTML = `
       <div class="kd-auth-user">
         <span class="kd-avatar">${escapeHtml(initials(state.currentUser.fullName))}</span>
-        <div class="kd-compact">
+        <div class="kd-compact kd-desktop-only">
           <div class="fw-bold">${escapeHtml(state.currentUser.fullName)}</div>
           <div class="kd-meta">${escapeHtml(state.currentUser.phone || "")}</div>
         </div>
@@ -420,7 +505,8 @@
   }
 
   function setActiveNav() {
-    const current = window.location.pathname.split("/").pop() || "index.html";
+    const currentRaw = window.location.pathname.split("/").pop() || "index.html";
+    const current = currentRaw.includes(".") ? currentRaw : `${currentRaw}.html`;
     qsa(".kd-nav-link").forEach((link) => {
       const href = link.getAttribute("href") || "";
       link.classList.toggle("active", href.endsWith(current));
@@ -429,30 +515,41 @@
 
   async function ensureAuth(options = {}) {
     if (state.currentUser) return true;
-    if (options.redirectToHome) {
-      window.location.href = "/index.html?auth=1";
-    } else {
-      openAuthModal();
+
+    if (options.storeReturnTo) {
+      localStorage.setItem(
+        STORAGE_KEYS.authReturnTo,
+        normalizePath(window.location.pathname + window.location.search),
+      );
     }
-    return false;
+
+    openAuthModal();
+    return new Promise((resolve) => {
+      state.pendingAuthResolvers.push(resolve);
+    });
   }
 
   function enforceRouteGuard() {
     const body = document.body;
-    if (!body) return;
+    if (!body) return false;
 
     const requiresAuth = body.dataset.requireAuth === "true";
     const adminOnly = body.dataset.adminOnly === "true";
 
     if (requiresAuth && !state.currentUser) {
-      window.location.href = "/index.html?auth=1";
-      return;
+      const nextPath = normalizePath(window.location.pathname + window.location.search);
+      localStorage.setItem(STORAGE_KEYS.authReturnTo, nextPath);
+      window.location.href = `/index.html?auth=1&next=${encodeURIComponent(nextPath)}`;
+      return true;
     }
 
     if (adminOnly && state.currentUser?.role !== "admin") {
       toast("Admin huquqi talab qilinadi.", "error");
       window.location.href = "/dashboard.html";
+      return true;
     }
+
+    return false;
   }
 
   function bindThemeToggle() {
@@ -460,26 +557,67 @@
     toggle?.addEventListener("click", toggleTheme);
   }
 
+  function injectBottomNav() {
+    if (qs("#kdBottomNav")) return;
+
+    const currentRaw = window.location.pathname.split("/").pop() || "index.html";
+    const current = currentRaw.includes(".") ? currentRaw : `${currentRaw}.html`;
+    const links = [
+      { href: "/index.html", icon: "fa-house", label: "Bosh" },
+      { href: "/menu.html", icon: "fa-utensils", label: "Menu" },
+      { href: "/order.html", icon: "fa-basket-shopping", label: "Buyurtma" },
+      { href: "/tables.html", icon: "fa-chair", label: "Stol" },
+      { href: "/payment.html", icon: "fa-credit-card", label: "To'lov" },
+      { href: "/profile.html", icon: "fa-user", label: "Profil" },
+    ];
+
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      `
+      <nav id="kdBottomNav" class="kd-bottom-nav">
+        ${links
+          .map(
+            (item) => `
+          <a class="kd-bottom-link ${item.href.endsWith(current) ? "active" : ""}" href="${item.href}">
+            <i class="fas ${item.icon}"></i>
+            <span>${item.label}</span>
+          </a>
+        `,
+          )
+          .join("")}
+      </nav>
+      `,
+    );
+  }
+
   function bootstrapCommon() {
+    stabilizeStyles();
     initTheme();
     setActiveNav();
     renderCartBadges();
     bindThemeToggle();
     bindAuthOpeners();
     initAuthModal();
-  }
-
-  function parseQuery() {
-    return new URLSearchParams(window.location.search);
+    injectBottomNav();
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
     bootstrapCommon();
     await loadCurrentUser();
-    enforceRouteGuard();
 
-    if (parseQuery().get("auth") === "1") {
+    if (enforceRouteGuard()) {
+      return;
+    }
+
+    const query = parseQuery();
+    if (!state.currentUser && query.get("auth") === "1") {
+      toast("Davom etish uchun login/register qiling.", "error");
       openAuthModal();
+      return;
+    }
+
+    if (state.currentUser) {
+      redirectAfterAuthIfNeeded();
     }
   });
 
@@ -505,5 +643,6 @@
     openAuthModal,
     logout,
     parseQuery,
+    normalizePath,
   };
 })();

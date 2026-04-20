@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Panel | Kardeshler Doner</title>
-    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css" />
-    <link rel="stylesheet" href="/assets/css/app.css" />
+    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css?v=2.2.0" onerror="this.onerror=null;this.href='/foodwagon-v1.0.0/public/assets/css/theme.css?v=2.2.0';" />
+    <link rel="stylesheet" href="/assets/css/app.css?v=2.2.0" />
   </head>
   <body class="kd-layout" data-page="admin" data-require-auth="true" data-admin-only="true">
     <nav class="navbar navbar-expand-lg fixed-top kd-navbar">
@@ -16,6 +16,7 @@
           <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
             <li class="nav-item"><a class="nav-link kd-nav-link" href="/index.html">Bosh sahifa</a></li>
             <li class="nav-item"><a class="nav-link kd-nav-link" href="/menu.html">Menu</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/tables.html">Stol bron</a></li>
             <li class="nav-item"><a class="nav-link kd-nav-link" href="/dashboard.html">Kabinet</a></li>
             <li class="nav-item"><a class="nav-link kd-nav-link" href="/admin.html">Admin</a></li>
             <li class="nav-item"><button class="kd-theme-toggle" id="themeToggle" type="button"><i class="fas fa-moon"></i></button></li>
@@ -34,6 +35,8 @@
           <div class="kd-stat-card"><p>Jami buyurtmalar</p><h4 id="ovOrders">0</h4></div>
           <div class="kd-stat-card"><p>Kutilayotgan to'lov</p><h4 id="ovPendingPayment">0</h4></div>
           <div class="kd-stat-card"><p>Revenue</p><h4 id="ovRevenue">0</h4></div>
+          <div class="kd-stat-card"><p>Stollar</p><h4 id="ovTableSpots">0</h4></div>
+          <div class="kd-stat-card"><p>Kutilayotgan stol bron</p><h4 id="ovPendingTableReservations">0</h4></div>
           <div class="kd-stat-card"><p>Yangi status</p><h4 id="ovStatusNew">0</h4></div>
           <div class="kd-stat-card"><p>Tayyorlanmoqda</p><h4 id="ovStatusPreparing">0</h4></div>
           <div class="kd-stat-card"><p>Yetkazilmoqda</p><h4 id="ovStatusDelivery">0</h4></div>
@@ -46,6 +49,7 @@
           <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tabUsers" type="button">Users</button></li>
           <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabMenu" type="button">Menu</button></li>
           <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabOrders" type="button">Orders & Delivery</button></li>
+          <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabTables" type="button">Stollar</button></li>
         </ul>
 
         <div class="tab-content">
@@ -154,6 +158,87 @@
               </table>
             </div>
           </div>
+
+          <div class="tab-pane fade" id="tabTables">
+            <div class="row g-3">
+              <div class="col-lg-4">
+                <form id="tableForm" class="kd-panel p-3 d-grid gap-2">
+                  <input id="tableId" type="hidden" />
+                  <h5 id="tableFormTitle" class="mb-1">Yangi stol qo'shish</h5>
+                  <label>Stol raqami <input id="tableNumber" type="number" class="form-control" min="1" required /></label>
+                  <label>Label <input id="tableLabel" class="form-control" placeholder="Masalan: Stol 7" /></label>
+                  <label>Sig'im (kishi) <input id="tableCapacity" type="number" class="form-control" min="1" max="20" value="4" /></label>
+                  <label>Zona <input id="tableZone" class="form-control" value="Asosiy zal" /></label>
+                  <label>Shakl
+                    <select id="tableShape" class="form-select">
+                      <option value="rect">To'rtburchak</option>
+                      <option value="round">Doira</option>
+                    </select>
+                  </label>
+                  <label class="form-check"><input id="tableActive" class="form-check-input" type="checkbox" checked /> Aktiv</label>
+                  <div class="d-flex gap-2">
+                    <button type="submit" class="kd-btn-primary flex-grow-1">Saqlash</button>
+                    <button type="button" class="kd-btn-outline" id="tableCancelEdit">Tozalash</button>
+                  </div>
+                </form>
+              </div>
+
+              <div class="col-lg-8">
+                <div class="kd-panel p-3 mb-3">
+                  <div class="kd-map-toolbar mb-2">
+                    <span class="kd-meta">Stollarni drag & drop orqali joylashtiring. Harakatdan keyin joylashuv serverga saqlanadi.</span>
+                  </div>
+                  <div id="adminTableMap" class="kd-table-map"></div>
+                </div>
+                <div class="kd-table-wrap">
+                  <table class="kd-table">
+                    <thead>
+                      <tr>
+                        <th>Raqam</th>
+                        <th>Label</th>
+                        <th>Sig'im</th>
+                        <th>Zona</th>
+                        <th>Shakl</th>
+                        <th>Aktiv</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="adminTablesBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="kd-panel p-3 mt-3">
+              <div class="kd-section-title mb-2">
+                <h3>Stol bron so'rovlari</h3>
+                <select id="tableReservationStatusFilter" class="form-select" style="max-width:240px;">
+                  <option value="all">Barchasi</option>
+                  <option value="pending">Kutilmoqda</option>
+                  <option value="approved">Tasdiqlangan</option>
+                  <option value="rejected">Rad etilgan</option>
+                  <option value="cancelled">Bekor qilingan</option>
+                  <option value="completed">Yakunlangan</option>
+                </select>
+              </div>
+              <div class="kd-table-wrap">
+                <table class="kd-table">
+                  <thead>
+                    <tr>
+                      <th>Kod</th>
+                      <th>Mijoz</th>
+                      <th>Stol</th>
+                      <th>Vaqt</th>
+                      <th>Kishi</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminTableReservationsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </main>
@@ -163,7 +248,8 @@
     <script src="/foodwagon-v1.0.0/public/vendors/@popperjs/popper.min.js"></script>
     <script src="/foodwagon-v1.0.0/public/vendors/bootstrap/bootstrap.min.js"></script>
     <script src="/foodwagon-v1.0.0/public/vendors/fontawesome/all.min.js"></script>
-    <script src="/assets/js/app.js"></script>
-    <script src="/assets/js/admin.js"></script>
+    <script src="/assets/js/app.js?v=2.2.0"></script>
+    <script src="/assets/js/admin.js?v=2.2.0"></script>
   </body>
 </html>
+
