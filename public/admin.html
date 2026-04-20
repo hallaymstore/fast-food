@@ -1,0 +1,169 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel | Kardeshler Doner</title>
+    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css" />
+    <link rel="stylesheet" href="/assets/css/app.css" />
+  </head>
+  <body class="kd-layout" data-page="admin" data-require-auth="true" data-admin-only="true">
+    <nav class="navbar navbar-expand-lg fixed-top kd-navbar">
+      <div class="container">
+        <a class="navbar-brand kd-brand" href="/index.html">Kardeshler Doner<small>Admin Control Center</small></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#kdNav"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="kdNav">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/index.html">Bosh sahifa</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/menu.html">Menu</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/dashboard.html">Kabinet</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/admin.html">Admin</a></li>
+            <li class="nav-item"><button class="kd-theme-toggle" id="themeToggle" type="button"><i class="fas fa-moon"></i></button></li>
+            <li class="nav-item"><div id="authArea"></div></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-3 py-md-4">
+      <section class="kd-panel p-3 p-md-4 mb-4">
+        <div class="kd-section-title mb-3"><h2>Admin Overview</h2></div>
+        <div class="kd-grid">
+          <div class="kd-stat-card"><p>Users</p><h4 id="ovUsers">0</h4></div>
+          <div class="kd-stat-card"><p>Menu itemlar</p><h4 id="ovMenu">0</h4></div>
+          <div class="kd-stat-card"><p>Jami buyurtmalar</p><h4 id="ovOrders">0</h4></div>
+          <div class="kd-stat-card"><p>Kutilayotgan to'lov</p><h4 id="ovPendingPayment">0</h4></div>
+          <div class="kd-stat-card"><p>Revenue</p><h4 id="ovRevenue">0</h4></div>
+          <div class="kd-stat-card"><p>Yangi status</p><h4 id="ovStatusNew">0</h4></div>
+          <div class="kd-stat-card"><p>Tayyorlanmoqda</p><h4 id="ovStatusPreparing">0</h4></div>
+          <div class="kd-stat-card"><p>Yetkazilmoqda</p><h4 id="ovStatusDelivery">0</h4></div>
+          <div class="kd-stat-card"><p>Yetkazilgan</p><h4 id="ovStatusDelivered">0</h4></div>
+        </div>
+      </section>
+
+      <section class="kd-panel p-3 p-md-4 mb-4">
+        <ul class="nav nav-pills mb-3" id="adminTabs" role="tablist">
+          <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tabUsers" type="button">Users</button></li>
+          <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabMenu" type="button">Menu</button></li>
+          <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabOrders" type="button">Orders & Delivery</button></li>
+        </ul>
+
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="tabUsers">
+            <div class="kd-table-wrap">
+              <table class="kd-table">
+                <thead>
+                  <tr>
+                    <th>Ism</th>
+                    <th>Telefon</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Active</th>
+                    <th>Buyurtma</th>
+                    <th>Xarajat</th>
+                  </tr>
+                </thead>
+                <tbody id="adminUsersBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="tabMenu">
+            <div class="row g-3">
+              <div class="col-lg-4">
+                <form id="menuForm" class="kd-panel p-3 d-grid gap-2">
+                  <input id="menuId" name="menuId" type="hidden" />
+                  <h5 id="menuFormTitle" class="mb-1">Yangi menu item</h5>
+                  <label>Nom <input id="menuName" name="name" class="form-control" required /></label>
+                  <label>Tavsif <textarea id="menuDescription" name="description" rows="3" class="form-control"></textarea></label>
+                  <label>Kategoriya <input id="menuCategory" name="category" class="form-control" /></label>
+                  <label>Narx (UZS) <input id="menuPrice" name="price" class="form-control" type="number" min="0" required /></label>
+                  <label>Spicy level <input id="menuSpicyLevel" name="spicyLevel" class="form-control" /></label>
+                  <label>Tayyorlash (daq) <input id="menuPrepTime" name="prepTime" class="form-control" type="number" min="1" /></label>
+                  <label>Image URL <input id="menuImageUrl" name="imageUrl" class="form-control" /></label>
+                  <label>Yangi rasm fayli <input id="menuImageFile" name="image" class="form-control" type="file" accept="image/*" /></label>
+                  <label>Taglar (vergul bilan) <input id="menuTags" name="tags" class="form-control" /></label>
+                  <label class="form-check"><input id="menuAvailable" class="form-check-input" type="checkbox" checked /> Mavjud</label>
+                  <label class="form-check"><input id="menuFeatured" class="form-check-input" type="checkbox" /> Featured</label>
+                  <div class="d-flex gap-2">
+                    <button type="submit" class="kd-btn-primary flex-grow-1">Saqlash</button>
+                    <button type="button" class="kd-btn-outline" id="menuCancelEdit">Tozalash</button>
+                  </div>
+                </form>
+              </div>
+
+              <div class="col-lg-8">
+                <div class="kd-table-wrap">
+                  <table class="kd-table">
+                    <thead>
+                      <tr>
+                        <th>Rasm</th>
+                        <th>Nomi</th>
+                        <th>Kategoriya</th>
+                        <th>Narx</th>
+                        <th>Mavjud</th>
+                        <th>Featured</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="adminMenuBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="tabOrders">
+            <div class="row g-2 mb-3">
+              <div class="col-md-3">
+                <select id="orderStatusFilter" class="form-select">
+                  <option value="all">Barcha statuslar</option>
+                  <option value="new">Yangi</option>
+                  <option value="confirmed">Tasdiqlangan</option>
+                  <option value="preparing">Tayyorlanmoqda</option>
+                  <option value="out_for_delivery">Yetkazilmoqda</option>
+                  <option value="delivered">Yetkazilgan</option>
+                  <option value="cancelled">Bekor qilingan</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <select id="orderPaymentFilter" class="form-select">
+                  <option value="all">Barcha to'lov holatlari</option>
+                  <option value="not_submitted">Yuborilmagan</option>
+                  <option value="pending">Kutilmoqda</option>
+                  <option value="approved">Tasdiqlangan</option>
+                  <option value="rejected">Rad etilgan</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="kd-table-wrap">
+              <table class="kd-table">
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th>Mijoz</th>
+                    <th>Jami</th>
+                    <th>To'lov</th>
+                    <th>Status</th>
+                    <th>Payment Action</th>
+                    <th>Delivery</th>
+                  </tr>
+                </thead>
+                <tbody id="adminOrdersBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="container py-3 kd-footer"><span>Kardeshler Doner Admin Dashboard</span></footer>
+
+    <script src="/foodwagon-v1.0.0/public/vendors/@popperjs/popper.min.js"></script>
+    <script src="/foodwagon-v1.0.0/public/vendors/bootstrap/bootstrap.min.js"></script>
+    <script src="/foodwagon-v1.0.0/public/vendors/fontawesome/all.min.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/admin.js"></script>
+  </body>
+</html>

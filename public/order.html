@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buyurtma | Kardeshler Doner</title>
+    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css" />
+    <link rel="stylesheet" href="/assets/css/app.css" />
+  </head>
+  <body class="kd-layout" data-page="order">
+    <nav class="navbar navbar-expand-lg fixed-top kd-navbar">
+      <div class="container">
+        <a class="navbar-brand kd-brand" href="/index.html">Kardeshler Doner<small>Premium Fast-Food Experience</small></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#kdNav"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="kdNav">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/index.html">Bosh sahifa</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/menu.html">Menu</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/order.html">Buyurtma <span class="badge bg-danger cart-count d-none"></span></a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/payment.html">To'lov</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/dashboard.html">Kabinet</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/profile.html">Profil</a></li>
+            <li class="nav-item"><button class="kd-theme-toggle" id="themeToggle" type="button"><i class="fas fa-moon"></i></button></li>
+            <li class="nav-item"><div id="authArea"></div></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-3 py-md-4">
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <section class="kd-panel p-3 p-md-4">
+            <div class="kd-section-title mb-3">
+              <h2>Savat va Buyurtma</h2>
+            </div>
+            <div id="orderCartList"></div>
+          </section>
+        </div>
+
+        <div class="col-lg-5">
+          <section class="kd-panel p-3 p-md-4 mb-3">
+            <h4 class="mb-3">Buyurtma tafsilotlari</h4>
+            <form id="placeOrderForm" class="d-grid gap-2">
+              <label>
+                Delivery turi
+                <select id="deliveryType" name="deliveryType" class="form-select">
+                  <option value="courier">Courier delivery</option>
+                  <option value="pickup">Pickup</option>
+                </select>
+              </label>
+              <label>
+                Delivery xizmati
+                <select name="deliveryService" class="form-select">
+                  <option value="internal">Kardeshler Express</option>
+                  <option value="partner">Partner delivery</option>
+                </select>
+              </label>
+              <label>
+                Manzil
+                <input id="deliveryAddress" name="deliveryAddress" class="form-control" placeholder="Yetkazib berish manzili" />
+              </label>
+              <label>
+                Izoh
+                <textarea name="customerNote" class="form-control" rows="3" placeholder="Qo'shimcha izoh (ixtiyoriy)"></textarea>
+              </label>
+
+              <div class="kd-panel p-2">
+                <div class="d-flex justify-content-between">
+                  <span>Subtotal</span>
+                  <strong id="orderSubtotal">0 so'm</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span>Delivery</span>
+                  <strong id="orderDeliveryFee">0 so'm</strong>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-between">
+                  <span>Jami</span>
+                  <strong id="orderTotal">0 so'm</strong>
+                </div>
+              </div>
+
+              <button class="kd-btn-primary" type="submit">Buyurtmani yuborish</button>
+            </form>
+          </section>
+
+          <div id="orderResult" class="d-none"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="container py-3 kd-footer"><span>Kardeshler Doner Order Flow</span></footer>
+
+    <script src="/foodwagon-v1.0.0/public/vendors/@popperjs/popper.min.js"></script>
+    <script src="/foodwagon-v1.0.0/public/vendors/bootstrap/bootstrap.min.js"></script>
+    <script src="/foodwagon-v1.0.0/public/vendors/fontawesome/all.min.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/order.js"></script>
+  </body>
+</html>

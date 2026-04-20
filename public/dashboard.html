@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kabinet | Kardeshler Doner</title>
+    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css" />
+    <link rel="stylesheet" href="/assets/css/app.css" />
+  </head>
+  <body class="kd-layout" data-page="dashboard" data-require-auth="true">
+    <nav class="navbar navbar-expand-lg fixed-top kd-navbar">
+      <div class="container">
+        <a class="navbar-brand kd-brand" href="/index.html">Kardeshler Doner<small>Premium Fast-Food Experience</small></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#kdNav"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="kdNav">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/index.html">Bosh sahifa</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/menu.html">Menu</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/order.html">Buyurtma <span class="badge bg-danger cart-count d-none"></span></a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/payment.html">To'lov</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/dashboard.html">Kabinet</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/history.html">Tarix</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/profile.html">Profil</a></li>
+            <li class="nav-item"><button class="kd-theme-toggle" id="themeToggle" type="button"><i class="fas fa-moon"></i></button></li>
+            <li class="nav-item"><div id="authArea"></div></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-3 py-md-4">
+      <section class="kd-panel p-3 p-md-4 mb-4">
+        <div class="kd-section-title mb-3"><h2>Mijoz Dashboard</h2></div>
+        <div class="kd-grid">
+          <div class="kd-stat-card"><p>Jami buyurtmalar</p><h4 id="statTotal">0</h4></div>
+          <div class="kd-stat-card"><p>To'lov tekshiruvda</p><h4 id="statPendingPayment">0</h4></div>
+          <div class="kd-stat-card"><p>Tayyorlanmoqda</p><h4 id="statPreparing">0</h4></div>
+          <div class="kd-stat-card"><p>Yo'lda</p><h4 id="statDelivery">0</h4></div>
+          <div class="kd-stat-card"><p>Yetkazilgan</p><h4 id="statDelivered">0</h4></div>
+          <div class="kd-stat-card"><p>Umumiy xarajat</p><h4 id="statSpent">0</h4></div>
+        </div>
+      </section>
+
+      <section class="kd-panel p-3 p-md-4">
+        <div class="kd-section-title"><h2>So'nggi buyurtmalar</h2><a href="/history.html" class="kd-btn-ghost">Barchasi</a></div>
+        <div class="kd-table-wrap">
+          <table class="kd-table">
+            <thead>
+              <tr>
+                <th>Buyurtma</th>
+                <th>Sana</th>
+                <th>Jami</th>
+                <th>Status</th>
+                <th>To'lov</th>
+              </tr>
+            </thead>
+            <tbody id="recentOrders"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="container py-3 kd-footer"><span>Kardeshler Doner Client Dashboard</span></footer>
+
+    <script src="/foodwagon-v1.0.0/public/vendors/@popperjs/popper.min.js"></script>
+    <script src="/foodwagon-v1.0.0/public/vendors/bootstrap/bootstrap.min.js"></script>
+    <script src="/foodwagon-v1.0.0/public/vendors/fontawesome/all.min.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/dashboard.js"></script>
+  </body>
+</html>

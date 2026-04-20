@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu | Kardeshler Doner</title>
+    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css" />
+    <link rel="stylesheet" href="/assets/css/app.css" />
+  </head>
+  <body class="kd-layout" data-page="menu">
+    <nav class="navbar navbar-expand-lg fixed-top kd-navbar">
+      <div class="container">
+        <a class="navbar-brand kd-brand" href="/index.html">Kardeshler Doner<small>Premium Fast-Food Experience</small></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#kdNav" aria-controls="kdNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="kdNav">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/index.html">Bosh sahifa</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/menu.html">Menu</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/order.html">Buyurtma <span class="badge bg-danger cart-count d-none"></span></a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/payment.html">To'lov</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/dashboard.html">Kabinet</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/profile.html">Profil</a></li>
+            <li class="nav-item"><button class="kd-theme-toggle" id="themeToggle" type="button" aria-label="Temani almashtirish"><i class="fas fa-moon"></i></button></li>
+            <li class="nav-item"><div id="authArea"></div></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-3 py-md-4">
+      <section class="kd-panel p-3 p-md-4 mb-4">
+        <div class="kd-section-title mb-3">
+          <h2>Menu Nazorati va Buyurtma</h2>
+        </div>
+        <div class="row g-2 align-items-center">
+          <div class="col-md-7">
+            <input id="menuSearch" class="form-control" placeholder="Taom nomi yoki tavsif bo'yicha qidiring" />
+          </div>
+          <div class="col-md-3">
+            <div class="form-check mt-2 mt-md-0">
+              <input class="form-check-input" type="checkbox" id="availableOnly" />
+              <label class="form-check-label" for="availableOnly">Faqat mavjud taomlar</label>
+            </div>
+          </div>
+          <div class="col-md-2 d-grid">
+            <a href="/order.html" class="kd-btn-primary text-center">Savatga o'tish</a>
+          </div>
+        </div>
+        <div id="categoryWrap" class="kd-chip-group mt-3"></div>
+      </section>
+
+      <section>
+        <div id="menuGrid" class="kd-grid"></div>
+      </section>
+    </main>
+
+    <footer class="container py-3 kd-footer">
+      <span>Kardeshler Doner Menu</span>
+    </footer>
+
+    <script src="/foodwagon-v1.0.0/public/vendors/@popperjs/popper.min.js"></script>
+    <script src="/foodwagon-v1.0.0/public/vendors/bootstrap/bootstrap.min.js"></script>
+    <script src="/foodwagon-v1.0.0/public/vendors/fontawesome/all.min.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/menu.js"></script>
+  </body>
+</html>

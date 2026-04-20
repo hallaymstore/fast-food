@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kardeshler Doner | Premium Fast-Food Platform</title>
+    <link rel="stylesheet" href="/foodwagon-v1.0.0/public/assets/css/theme.min.css" />
+    <link rel="stylesheet" href="/assets/css/app.css" />
+  </head>
+  <body class="kd-layout" data-page="index">
+    <nav class="navbar navbar-expand-lg fixed-top kd-navbar">
+      <div class="container">
+        <a class="navbar-brand kd-brand" href="/index.html">
+          Kardeshler Doner
+          <small>Premium Fast-Food Experience</small>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#kdNav" aria-controls="kdNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="kdNav">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/index.html">Bosh sahifa</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/menu.html">Menu</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/order.html">Buyurtma <span class="badge bg-danger cart-count d-none"></span></a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/payment.html">To'lov</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/dashboard.html">Kabinet</a></li>
+            <li class="nav-item"><a class="nav-link kd-nav-link" href="/profile.html">Profil</a></li>
+            <li class="nav-item"><button class="kd-theme-toggle" id="themeToggle" type="button" aria-label="Temani almashtirish"><i class="fas fa-moon"></i></button></li>
+            <li class="nav-item"><div id="authArea"></div></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-3 py-md-4">
+      <section class="kd-hero kd-animated mb-4">
+        <div class="row align-items-center g-4">
+          <div class="col-lg-7">
+            <span class="kd-pill mb-3 d-inline-block">foodwagon-v1.0.0 asosida premium versiya</span>
+            <h1 class="mb-2" id="brandName">Kardeshler Doner</h1>
+            <p class="mb-3" id="brandSlogan">Tez yetkazib berish, premium ta'm, zamonaviy servis</p>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              <button class="kd-btn-primary" id="ctaToMenu" type="button">Menu ko'rish</button>
+              <button class="kd-btn-outline" id="ctaToOrder" type="button">Hozir buyurtma berish</button>
+            </div>
+            <form class="row g-2 align-items-center" onsubmit="return false;">
+              <div class="col-md-8">
+                <input class="form-control" id="quickAddress" placeholder="Tez buyurtma uchun manzil kiriting" />
+              </div>
+              <div class="col-md-4 d-grid">
+                <button class="kd-btn-primary" id="quickOrderButton" type="button">Tez buyurtma</button>
+              </div>
+            </form>
+            <small class="mt-2 d-inline-block">Qo'llab-quvvatlash: <strong id="supportPhone">+998 90 777 55 44</strong></small>
+          </div>
+          <div class="col-lg-5 text-center">
+            <img class="img-fluid" src="/foodwagon-v1.0.0/public/assets/img/gallery/hero-header.png" alt="Kardeshler Hero" />
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-4">
+        <div class="kd-section-title">
+          <h2>Nima uchun Kardeshler?</h2>
+        </div>
+        <div class="kd-grid">
+          <div class="kd-stat-card">
+            <p>Express xizmat</p>
+            <h4>20-35 daq</h4>
+            <small class="kd-meta">Ichki delivery jamoasi bilan tez yetkazib berish.</small>
+          </div>
+          <div class="kd-stat-card">
+            <p>To'lov xavfsizligi</p>
+            <h4>Screenshot</h4>
+            <small class="kd-meta">Admin karta orqali to'lov va 100% tasdiqlash nazorati.</small>
+          </div>
+          <div class="kd-stat-card">
+            <p>Admin nazorat</p>
+            <h4>To'liq</h4>
+            <small class="kd-meta">Users, menu, orders, delivery hammasi bitta panelda.</small>
+          </div>
+          <div class="kd-stat-card">
+            <p>Cloudinary</p>
+            <h4>Media API</h4>
+            <small class="kd-meta">Screenshot va menu rasmlarini cloud orqali boshqarish.</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-4">
+        <div class="kd-section-title">
+          <h2>Featured Menu</h2>
+          <a href="/menu.html" class="kd-btn-ghost">Barchasi</a>
+        </div>
+        <div class="kd-grid" id="featuredMenuGrid"></div>
+      </section>
+
+      <section class="kd-panel p-4 mb-4" style="background:url('/foodwagon-v1.0.0/public/assets/img/gallery/cta-two-bg.png') center/cover no-repeat; border-color: rgba(255,99,99,.35);">
+        <div class="row align-items-center g-3">
+          <div class="col-md-8 text-white">
+            <h3 class="mb-1">Admin kartaga to'lang, screenshot yuklang, tez tasdiq oling.</h3>
+            <p class="mb-0">Buyurtmangiz tasdiqlangach tayyorlash va delivery bosqichlari realtime status bilan ko'rinadi.</p>
+          </div>
+          <div class="col-md-4 d-grid">
+            <a class="kd-btn-primary text-center" href="/payment.html">To'lov bo'limiga o'tish</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="container py-3 kd-footer">
+      <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
+        <span>© 2026 Kardeshler Doner. Barcha huquqlar himoyalangan.</span>
+        <span>Node.js + MongoDB + Cloudinary + Premium UI</span>
+      </div>
+    </footer>
+
+    <script src="/foodwagon-v1.0.0/public/vendors/@popperjs/popper.min.js"></script>
+    <script src="/foodwagon-v1.0.0/public/vendors/bootstrap/bootstrap.min.js"></script>
+    <script src="/foodwagon-v1.0.0/public/vendors/fontawesome/all.min.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/landing.js"></script>
+  </body>
+</html>
