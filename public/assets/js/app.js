@@ -280,6 +280,38 @@
     }
   }
 
+  function getManualBackdrop() {
+    return qs("#authModalBackdrop");
+  }
+
+  function manualShowAuthModal(modalEl) {
+    if (!modalEl) return;
+
+    modalEl.style.display = "block";
+    modalEl.removeAttribute("aria-hidden");
+    modalEl.setAttribute("aria-modal", "true");
+    modalEl.classList.add("show");
+    document.body.classList.add("modal-open");
+
+    if (!getManualBackdrop()) {
+      const backdrop = document.createElement("div");
+      backdrop.id = "authModalBackdrop";
+      backdrop.className = "modal-backdrop fade show";
+      document.body.appendChild(backdrop);
+    }
+  }
+
+  function manualHideAuthModal(modalEl) {
+    if (!modalEl) return;
+
+    modalEl.classList.remove("show");
+    modalEl.setAttribute("aria-hidden", "true");
+    modalEl.removeAttribute("aria-modal");
+    modalEl.style.display = "none";
+    document.body.classList.remove("modal-open");
+    getManualBackdrop()?.remove();
+  }
+
   function initAuthModal() {
     if (qs("#authModal")) return;
 
@@ -325,6 +357,23 @@
 
     const modalEl = qs("#authModal");
     modalEl?.addEventListener("hidden.bs.modal", () => {
+      if (!state.currentUser) {
+        resolvePendingAuth(false);
+      }
+    });
+    modalEl?.addEventListener("click", (event) => {
+      if (event.target !== modalEl) return;
+      if (window.bootstrap?.Modal) return;
+      manualHideAuthModal(modalEl);
+      if (!state.currentUser) {
+        resolvePendingAuth(false);
+      }
+    });
+
+    const closeButton = qs("#authModal .btn-close");
+    closeButton?.addEventListener("click", () => {
+      if (window.bootstrap?.Modal) return;
+      manualHideAuthModal(modalEl);
       if (!state.currentUser) {
         resolvePendingAuth(false);
       }
@@ -376,7 +425,33 @@
 
   function getAuthModal() {
     initAuthModal();
-    return window.bootstrap?.Modal.getOrCreateInstance(qs("#authModal"));
+    const modalEl = qs("#authModal");
+    const ModalCtor = window.bootstrap?.Modal;
+
+    if (!modalEl) {
+      return null;
+    }
+
+    if (!ModalCtor) {
+      return {
+        show: () => manualShowAuthModal(modalEl),
+        hide: () => manualHideAuthModal(modalEl),
+      };
+    }
+
+    let instance = null;
+    if (typeof ModalCtor.getOrCreateInstance === "function") {
+      instance = ModalCtor.getOrCreateInstance(modalEl);
+    } else if (typeof ModalCtor.getInstance === "function") {
+      instance = ModalCtor.getInstance(modalEl) || new ModalCtor(modalEl);
+    } else {
+      instance = new ModalCtor(modalEl);
+    }
+
+    return {
+      show: () => instance?.show?.(),
+      hide: () => instance?.hide?.(),
+    };
   }
 
   function redirectAfterAuthIfNeeded() {
